@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Hemant Parakh · Data Science & Forecasting</title>
+  <meta name="description" content="Hemant Parakh. M.Sc. Data Science, TU Hamburg. Forecasting, applied machine learning and GenAI at Hapag-Lloyd. Available for full-time roles now."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; font-size: 16px; scroll-padding-top: 84px; }
+
+    :root {
+      --bg:          #f5f4f1;
+      --bg-2:        #ecebe5;
+      --bg-3:        #e2e0d7;
+      --surface:     #ffffff;
+      --border:      rgba(0,0,0,0.08);
+      --text:        #14181c;
+      --text-muted:  #566270;
+      --accent:      #1f6f8b;
+      --accent-dim:  rgba(31,111,139,0.09);
+      --accent-glow: rgba(31,111,139,0.20);
+      --cool:        #b5762a;
+      --cool-dim:    rgba(181,118,42,0.10);
+      --cool-glow:   rgba(181,118,42,0.20);
+      --green:       #2e8b57;
+      --radius:      12px;
+      --radius-lg:   18px;
+      --nav-h:       64px;
+      --ease:        cubic-bezier(0.34, 1.56, 0.64, 1);
+      --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+      --t:           0.3s;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', system-ui, sans-serif;
+      font-weight: 400;
+      line-height: 1.65;
+      overflow-x: hidden;
+      transition: background var(--t) var(--ease-smooth), color var(--t) var(--ease-smooth);
+    }
+    body::before {
+      content: '';
+      position: fixed; inset: 0; pointer-events: none; z-index: 999;
+      opacity: 0.018;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+
+    /* ── Scroll progress ── */
+    #progress {
+      position: fixed; top: 0; left: 0; height: 3px; width: 0; z-index: 400;
+      background: linear-gradient(90deg, var(--accent), var(--cool));
+      box-shadow: 0 0 12px var(--accent-glow);
+    }
+
+    /* ── Typography ── */
+    h1, h2, h3, .serif { font-family: 'Instrument Serif', Georgia, serif; font-weight: 400; }
+    h1 { font-size: clamp(2.6rem, 6.5vw, 5rem); line-height: 1.07; letter-spacing: -0.025em; }
+    h2 { font-size: clamp(1.9rem, 3.8vw, 2.8rem); line-height: 1.12; letter-spacing: -0.02em; }
+    h3 { font-size: 1.2rem; line-height: 1.3; }
+    p { color: var(--text-muted); }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+    a { color: inherit; text-decoration: none; }
+    h2 em { font-style: italic; color: var(--accent); }
+
+    /* ── Layout ── */
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 clamp(1.25rem, 5vw, 3rem); }
+    .section { padding: clamp(4rem, 8vw, 7rem) 0; }
+
+    /* ── Utilities ── */
+    .section-label {
+      font-size: 0.7rem; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.6rem;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .section-label::after { content: ''; flex: 1; max-width: 2.5rem; height: 1px; background: var(--accent); opacity: 0.4; }
+    .tag {
+      display: inline-block; font-size: 0.69rem; font-weight: 500; letter-spacing: 0.04em;
+      padding: 0.22rem 0.65rem; border-radius: 100px;
+      background: var(--accent-dim); color: var(--accent); border: 1px solid var(--accent-glow);
+      font-family: 'JetBrains Mono', monospace;
+      transition: transform var(--t) var(--ease);
+    }
+    .tag:hover { transform: translateY(-3px) rotate(-2deg); }
+    .tag.cool { background: var(--cool-dim); color: var(--cool); border-color: var(--cool-glow); }
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 1.6rem;
+      transition: border-color var(--t) var(--ease-smooth), box-shadow var(--t) var(--ease-smooth), transform 0.12s ease-out;
+      transform-style: preserve-3d; will-change: transform;
+    }
+    .card:hover { border-color: var(--accent-glow); box-shadow: 0 18px 44px rgba(0,0,0,0.16); }
+    .btn {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.7rem 1.4rem; border-radius: 100px; font-size: 0.85rem; font-weight: 500;
+      cursor: pointer; border: none; text-decoration: none;
+      transition: background var(--t), color var(--t), box-shadow var(--t), transform 0.15s ease-out;
+    }
+    .btn-primary { background: var(--accent); color: #ffffff; }
+    .btn-primary:hover { box-shadow: 0 10px 28px var(--accent-glow); }
+    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+    .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+    .divider { height: 1px; background: var(--border); }
+
+    /* ── Reveal (crazy variants) ── */
+    .reveal {
+      opacity: 0; transform: translateY(42px); filter: blur(7px);
+      transition: opacity 0.7s var(--ease-smooth), transform 0.75s var(--ease), filter 0.7s var(--ease-smooth);
+    }
+    .reveal.visible { opacity: 1; transform: none; filter: none; }
+    .reveal-left  { transform: translateX(-70px) rotate(-3deg); }
+    .reveal-right { transform: translateX(70px) rotate(3deg); }
+    .reveal-scale { transform: scale(0.72); }
+    .reveal-rot   { transform: rotate(-8deg) translateY(46px) scale(0.9); }
+    .reveal-delay-1 { transition-delay: 0.08s; }
+    .reveal-delay-2 { transition-delay: 0.16s; }
+    .reveal-delay-3 { transition-delay: 0.24s; }
+    .reveal-delay-4 { transition-delay: 0.32s; }
+
+    /* ── NAV ── */
+    nav#navbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200; height: var(--nav-h);
+      display: flex; align-items: center;
+      background: rgba(245,244,241,0.88); backdrop-filter: blur(16px);
+      border-bottom: 1px solid transparent; transition: border-color var(--t);
+    }
+    nav#navbar.scrolled { border-bottom-color: var(--border); }
+    nav#navbar .container { display: flex; align-items: center; justify-content: space-between; width: 100%; }
+    .nav-logo { display: flex; align-items: center; gap: 0.6rem; font-size: 0.85rem; font-weight: 500; cursor: pointer; }
+    .nav-logo svg { transition: transform 0.7s var(--ease); }
+    .nav-logo.spin svg { transform: rotate(360deg) scale(1.15); }
+    .nav-links { display: flex; align-items: center; gap: 0.35rem; }
+    .nav-links a {
+      font-size: 0.78rem; font-weight: 500; color: var(--text-muted);
+      padding: 0.4rem 0.85rem; border-radius: 100px; border: 1px solid transparent;
+      transition: color var(--t), background var(--t), border-color var(--t), transform 0.18s var(--ease);
+    }
+    .nav-links a:hover { color: var(--accent); background: var(--accent-dim); border-color: var(--accent-glow); transform: translateY(-2px); }
+    .nav-actions { display: flex; align-items: center; gap: 0.6rem; }
+    .nav-gh {
+      width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center; color: var(--text-muted);
+      transition: color var(--t), border-color var(--t), transform 0.18s var(--ease);
+    }
+    .nav-gh:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px) rotate(8deg); }
+    .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 6px; background: none; border: none; }
+    .hamburger span { display: block; width: 22px; height: 2px; background: var(--text); border-radius: 2px; transition: all var(--t); }
+    .mobile-menu {
+      display: none; position: fixed; top: var(--nav-h); left: 0; right: 0; z-index: 199;
+      background: var(--bg-2); border-bottom: 1px solid var(--border);
+      padding: 1.25rem; flex-direction: row; flex-wrap: wrap; gap: 0.5rem;
+    }
+    .mobile-menu.open { display: flex; }
+    .mobile-menu a { font-size: 0.85rem; font-weight: 500; color: var(--text); padding: 0.5rem 1rem; border: 1px solid var(--border); border-radius: 100px; background: var(--surface); }
+    @media (max-width: 980px) { .nav-links { gap: 0.15rem; } .nav-links a { padding: 0.35rem 0.62rem; font-size: 0.73rem; } }
+    @media (max-width: 760px) {
+      .nav-links, .nav-actions .btn { display: none; }
+      .hamburger { display: flex; }
+    }
+
+    /* ── HERO ── */
+    #hero {
+      min-height: 100svh; position: relative; overflow: hidden;
+      display: flex; flex-direction: column; justify-content: flex-end;
+      padding-top: var(--nav-h);
+    }
+    #hero-canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+    .hero-gradient {
+      position: absolute; inset: 0; pointer-events: none;
+      background:
+        radial-gradient(ellipse 70% 55% at 55% 40%, rgba(31,111,139,0.05) 0%, transparent 65%),
+        radial-gradient(ellipse 45% 50% at 5% 75%, rgba(181,118,42,0.04) 0%, transparent 55%);
+    }
+    .hero-inner { position: relative; z-index: 2; padding-bottom: clamp(3rem, 8vh, 6rem); }
+    .hero-status { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.75rem; }
+    .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 10px var(--green); animation: pulse 2.2s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.55;transform:scale(1.5)} }
+    .status-text { font-size: 0.77rem; font-weight: 500; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
+    .hero-title { margin-bottom: 1.5rem; }
+    .hero-title .grad {
+      font-style: italic;
+      background: linear-gradient(90deg, var(--accent), var(--cool), var(--accent));
+      background-size: 220% auto; -webkit-background-clip: text; background-clip: text; color: transparent;
+      animation: shimmer 5s linear infinite;
+    }
+    @keyframes shimmer { to { background-position: 220% center; } }
+    .hero-title .wave { display: inline-block; animation: wave 2.6s ease-in-out infinite; transform-origin: 70% 70%; }
+    @keyframes wave { 0%,60%,100%{transform:rotate(0)} 10%{transform:rotate(16deg)} 20%{transform:rotate(-8deg)} 30%{transform:rotate(16deg)} 40%{transform:rotate(-4deg)} 50%{transform:rotate(10deg)} }
+    .hero-sub { font-size: clamp(0.95rem, 1.8vw, 1.1rem); color: var(--text-muted); max-width: 560px; margin-bottom: 2.5rem; line-height: 1.75; }
+    .hero-cta { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 3rem; }
+    .scroll-cue {
+      position: absolute; bottom: 1.75rem; left: 50%; transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 0.4rem;
+      font-size: 0.67rem; font-family: 'JetBrains Mono', monospace;
+      color: var(--text-muted); letter-spacing: 0.1em; text-transform: uppercase; z-index: 2;
+    }
+    .scroll-line { width: 1px; height: 36px; background: linear-gradient(to bottom, var(--text-muted), transparent); animation: scrollAnim 1.9s ease-in-out infinite; }
+    @keyframes scrollAnim { 0%,100%{opacity:0;transform:translateY(-8px)}50%{opacity:1;transform:translateY(0)} }
+
+    /* ── EXPERIENCE ── */
+    .timeline { display: flex; flex-direction: column; }
+    .tl-item { display: grid; grid-template-columns: auto 1fr; gap: 0 1.5rem; }
+    .tl-line { display: flex; flex-direction: column; align-items: center; }
+    .tl-dot { width: 11px; height: 11px; border-radius: 50%; background: var(--accent); border: 2px solid var(--bg); box-shadow: 0 0 0 3px var(--accent-dim); flex-shrink: 0; margin-top: 0.4rem; transition: transform var(--t) var(--ease), box-shadow var(--t); }
+    .tl-item:hover .tl-dot { transform: scale(1.6); box-shadow: 0 0 0 5px var(--accent-dim); }
+    .tl-connector { flex: 1; width: 1px; background: var(--border); margin: 0.4rem 0; min-height: 1.5rem; }
+    .tl-item:last-child .tl-connector { display: none; }
+    .tl-body { padding-bottom: 2.5rem; }
+    .tl-role { font-size: 1rem; font-weight: 600; color: var(--text); margin-bottom: 0.25rem; }
+    .tl-meta { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin-bottom: 0.85rem; }
+    .tl-company { font-size: 0.82rem; font-weight: 500; color: var(--accent); }
+    .tl-period { font-size: 0.72rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
+    .tl-list { list-style: none; display: flex; flex-direction: column; gap: 0.4rem; }
+    .tl-list li { font-size: 0.865rem; color: var(--text-muted); padding-left: 1.2rem; position: relative; line-height: 1.6; transition: transform var(--t) var(--ease-smooth); }
+    .tl-list li::before { content: '→'; position: absolute; left: 0; color: var(--accent); font-size: 0.72rem; top: 0.1rem; transition: transform var(--t) var(--ease); }
+    .tl-list li:hover { transform: translateX(4px); }
+    .tl-list li:hover::before { transform: translateX(3px); }
+
+    /* ── EDUCATION ── */
+    .edu-degrees { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 1.75rem; }
+    @media (max-width: 720px) { .edu-degrees { grid-template-columns: 1fr; } }
+    .edu-main { background: var(--bg-3); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.75rem 2rem; }
+    .edu-degrees .edu-main { display: flex; flex-direction: column; }
+    .edu-period-tag { font-size: 0.7rem; font-family: 'JetBrains Mono', monospace; color: var(--accent); letter-spacing: 0.06em; margin-bottom: 0.6rem; }
+    .edu-degree { font-size: 1.5rem; margin-bottom: 0.25rem; }
+    .edu-uni { color: var(--accent); font-size: 0.84rem; font-weight: 500; margin-bottom: 0.4rem; }
+    .edu-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 1rem; }
+    .edu-card summary { cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; font-weight: 500; font-size: 0.88rem; gap: 0.5rem; }
+    .edu-card summary::-webkit-details-marker { display: none; }
+    .chevron { width: 20px; height: 20px; border-radius: 50%; background: var(--accent-dim); display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: transform var(--t) var(--ease); color: var(--accent); font-size: 0.68rem; }
+    details[open] .chevron { transform: rotate(180deg); }
+    .edu-detail { margin-top: 0.85rem; font-size: 0.83rem; color: var(--text-muted); line-height: 1.72; }
+    .edu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; align-items: start; }
+
+    /* ── PROJECTS ── */
+    .projects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 1.1rem; }
+    .proj-card { position: relative; overflow: hidden; }
+    .proj-card::after { content: ''; position: absolute; inset: 0; border-radius: var(--radius-lg); background: linear-gradient(135deg, var(--accent-dim) 0%, transparent 55%); opacity: 0; transition: opacity var(--t); pointer-events: none; }
+    .proj-card:hover::after { opacity: 1; }
+    .proj-title { font-size: 1rem; font-weight: 600; color: var(--text); margin-bottom: 0.4rem; }
+    .proj-desc { font-size: 0.83rem; color: var(--text-muted); line-height: 1.65; margin-bottom: 1rem; }
+    .proj-tags { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 1rem; }
+    .proj-link { font-size: 0.77rem; font-weight: 500; color: var(--accent); display: inline-flex; align-items: center; gap: 0.3rem; }
+
+    /* ── SKILLS ── */
+    .skills-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 1.1rem; }
+    .skill-group-label { font-size: 0.69rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.85rem; font-family: 'JetBrains Mono', monospace; }
+    .skill-pills { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .skill-pill { font-size: 0.78rem; font-weight: 500; padding: 0.3rem 0.8rem; border-radius: 100px; background: var(--bg-3); border: 1px solid var(--border); color: var(--text); transition: all var(--t) var(--ease); cursor: default; }
+    .skill-pill:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); transform: translateY(-4px) scale(1.06) rotate(-1.5deg); }
+    .skill-pill.ai-pill:hover { border-color: var(--cool); color: var(--cool); background: var(--cool-dim); }
+
+    /* ── ABOUT ── */
+    .about-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 3rem; align-items: start; }
+    @media (max-width: 700px) { .about-grid { grid-template-columns: 1fr; } }
+    .photo-frame { aspect-ratio: 3/4; border-radius: var(--radius-lg); border: 1px solid var(--border); overflow: hidden; position: relative; background: var(--bg-3); }
+    .photo-placeholder { width: 100%; height: 100%; background: repeating-linear-gradient(-45deg, var(--bg-3) 0px, var(--bg-3) 6px, var(--surface) 6px, var(--surface) 12px); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem; position: relative; }
+    .photo-placeholder::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 70% 60% at 50% 40%, rgba(31,111,139,0.08) 0%, transparent 70%); }
+    .photo-initials { font-family: 'Instrument Serif', serif; font-size: 4rem; color: var(--accent); opacity: 0.7; z-index: 1; }
+    .photo-label { font-size: 0.65rem; font-family: 'JetBrains Mono', monospace; color: var(--text-muted); letter-spacing: 0.12em; text-transform: uppercase; z-index: 1; text-align: center; line-height: 1.6; }
+    .interest-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1.25rem; }
+    .interest-chip { font-size: 0.79rem; font-weight: 500; padding: 0.38rem 0.85rem; border-radius: 100px; background: var(--surface); border: 1px solid var(--border); color: var(--text-muted); transition: transform var(--t) var(--ease), color var(--t), border-color var(--t); cursor: default; }
+    .interest-chip:hover { transform: translateY(-5px) rotate(3deg); color: var(--accent); border-color: var(--accent-glow); }
+
+    /* ── WHY ME ── */
+    .why-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.1rem; }
+    .why-emoji { font-size: 1.4rem; margin-bottom: 0.85rem; display: inline-block; transition: transform var(--t) var(--ease); }
+    .card:hover .why-emoji { transform: scale(1.35) rotate(-10deg); }
+
+    /* ── CONTACT ── */
+    #contact { background: var(--bg-2); }
+    .contact-wrap { text-align: center; max-width: 540px; margin: 0 auto; }
+    .contact-email { font-family: 'Instrument Serif', serif; font-size: 1.5rem; color: var(--accent); display: inline-block; margin: 1.5rem 0; transition: transform var(--t) var(--ease); }
+    .contact-email:hover { transform: scale(1.06) rotate(-1deg); }
+    .contact-links { display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: center; }
+    .contact-link { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.65rem 1.3rem; border-radius: 100px; font-size: 0.84rem; font-weight: 500; border: 1px solid var(--border); color: var(--text); transition: all var(--t) var(--ease); }
+    .contact-link:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-4px) scale(1.04); }
+
+    /* ── FOOTER ── */
+    footer { padding: 2rem 0; border-top: 1px solid var(--border); text-align: center; font-size: 0.77rem; color: var(--text-muted); }
+    footer a { color: var(--accent); }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.05ms !important; }
+      .reveal { filter: none; transform: none; opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="progress"></div>
+
+<!-- NAV -->
+<nav id="navbar">
+  <div class="container">
+    <a href="#hero" class="nav-logo" id="navLogo">
+      <svg width="30" height="30" viewBox="0 0 40 40" fill="none">
+        <rect width="40" height="40" rx="8" fill="currentColor" fill-opacity="0.07"/>
+        <text x="50%" y="52%" dominant-baseline="middle" text-anchor="middle"
+          font-family="'Instrument Serif',serif" font-size="18" fill="currentColor" letter-spacing="-1">HP</text>
+      </svg>
+      Hemant Parakh
+    </a>
+    <div class="nav-links">
+      <a href="#experience">Experience</a>
+      <a href="#education">Education</a>
+      <a href="#projects">Projects</a>
+      <a href="#skills">Skills</a>
+      <a href="#about">About</a>
+      <a href="#why-me">Why Me</a>
+      <a href="#contact">Contact</a>
+    </div>
+    <div class="nav-actions">
+      <a href="https://github.com/Hemant-Parakh" target="_blank" rel="noopener" class="nav-gh" aria-label="GitHub">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.37.5 0 5.87 0 12.5c0 5.3 3.44 9.8 8.21 11.39.6.11.82-.26.82-.58l-.01-2.05c-3.34.73-4.04-1.61-4.04-1.61-.55-1.39-1.33-1.76-1.33-1.76-1.09-.74.08-.73.08-.73 1.2.09 1.84 1.24 1.84 1.24 1.07 1.83 2.81 1.3 3.5.99.11-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.12-.3-.54-1.52.12-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.29-1.55 3.3-1.23 3.3-1.23.66 1.66.24 2.88.12 3.18.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.63-5.49 5.92.43.37.81 1.1.81 2.22l-.01 3.29c0 .32.22.7.83.58A12.01 12.01 0 0 0 24 12.5C24 5.87 18.63.5 12 .5z"/></svg>
+      </a>
+      <a href="Hemant_Parakh_CV.pdf" download class="btn btn-primary" style="font-size:0.78rem;padding:0.52rem 1.05rem;">Download CV</a>
+    </div>
+    <button class="hamburger" id="hamburger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#experience">Experience</a>
+  <a href="#education">Education</a>
+  <a href="#projects">Projects</a>
+  <a href="#skills">Skills</a>
+  <a href="#about">About</a>
+  <a href="#why-me">Why Me</a>
+  <a href="#contact">Contact</a>
+</div>
+
+<!-- HERO -->
+<section id="hero">
+  <canvas id="hero-canvas"></canvas>
+  <div class="hero-gradient"></div>
+  <div class="container hero-inner">
+    <div class="hero-status reveal">
+      <div class="status-dot"></div>
+      <span class="status-text">available for full-time roles now · Hamburg · powered by espresso &amp; stubborn curiosity</span>
+    </div>
+    <h1 class="hero-title reveal reveal-delay-1">
+      Hi, I'm <span class="wave">👋</span><br/>
+      <span class="grad">Hemant</span>,<br/>
+      I turn uncertainty<br/>into <span class="grad">decisions</span>.
+    </h1>
+    <p class="hero-sub reveal reveal-delay-2">
+      Data scientist and M.Sc. candidate at TU Hamburg, building production forecasting and LLM systems at Hapag-Lloyd. I work where time-series forecasting, commercial strategy and applied GenAI collide, turning noisy internal and macroeconomic signals into forecasts, briefings and decisions that steer real revenue (and yes, they hold up on the backtest).
+    </p>
+    <div class="hero-cta reveal reveal-delay-3">
+      <a href="#projects" class="btn btn-primary">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        See My Work
+      </a>
+      <a href="Hemant_Parakh_CV.pdf" download class="btn btn-outline">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download CV
+      </a>
+    </div>
+  </div>
+  <div class="scroll-cue">
+    <div class="scroll-line"></div>
+    scroll (there's more)
+  </div>
+</section>
+
+<!-- EXPERIENCE -->
+<section id="experience" class="section">
+  <div class="container">
+
+    <p class="section-label reveal">Professional Experience</p>
+    <h2 class="reveal reveal-delay-1" style="margin-bottom:3rem;">Where I've made<br/><em>an impact</em></h2>
+    <div class="timeline">
+
+      <div class="tl-item reveal reveal-left">
+        <div class="tl-line"><div class="tl-dot"></div><div class="tl-connector"></div></div>
+        <div class="tl-body">
+          <div class="tl-role">Working Student, Trade Analytics &amp; Yield Management</div>
+          <div class="tl-meta">
+            <span class="tl-company">Hapag-Lloyd AG, Hamburg</span>
+            <span class="tl-period">Sep 2024 to Present</span>
+          </div>
+          <ul class="tl-list">
+            <li>Building freight-rate forecasting models at 7, 14 and 30-day horizons across global trade lanes, fusing internal segmentation data (TEU, NFR, CL2) with macroeconomic and market signals, validated via walk-forward backtesting.</li>
+            <li>Designed and shipped an LLM-based trade-strategy pipeline that turns a trade manager's idea into a structured volume-opportunity briefing. Split research and writer prompt architecture with prompt caching cut analysis time from 2 to 3 hours down to 40 to 60 minutes.</li>
+            <li>Built a modular Python pipeline for external Tier-2/3 indicators (FRED macro series, GDELT events, container freight indices) with automated ingestion, cleaning and scheduled refresh.</li>
+            <li>Migrated LLM inference to Databricks Model Serving endpoints, killed a cold-start bottleneck and cut app load time by 86%, then wired outputs into Qlik for business dashboards.</li>
+            <li>Work directly with trade managers and senior stakeholders, presenting analytical concepts to non-technical directors without a single confusing graph (mostly).</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="tl-item reveal reveal-left reveal-delay-1">
+        <div class="tl-line"><div class="tl-dot"></div><div class="tl-connector"></div></div>
+        <div class="tl-body">
+          <div class="tl-role">Intern, Big Data &amp; Finance</div>
+          <div class="tl-meta">
+            <span class="tl-company">Gourav Mardia &amp; Co, Mumbai</span>
+            <span class="tl-period">Mar 2023 to Oct 2023</span>
+          </div>
+          <ul class="tl-list">
+            <li>Built and maintained relational databases and data-collection systems for financial reporting workflows.</li>
+            <li>Applied statistical analysis to client financial data and translated findings into recommendations for management.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="tl-item reveal reveal-left reveal-delay-2">
+        <div class="tl-line"><div class="tl-dot"></div></div>
+        <div class="tl-body">
+          <div class="tl-role">Intern, Machine Learning</div>
+          <div class="tl-meta">
+            <span class="tl-company">APSIT Skills, Thane</span>
+            <span class="tl-period">Jun 2021 to Aug 2021</span>
+          </div>
+          <ul class="tl-list">
+            <li>Built a real-time motion-detection system using background subtraction, then tuned it to stop panicking at every passing shadow across varied lighting. Work published (see below).</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- EDUCATION -->
+<section id="education" class="section">
+  <div class="container">
+    <p class="section-label reveal">Education &amp; Research</p>
+    <h2 class="reveal reveal-delay-1" style="margin-bottom:2rem;">What I'm<br/><em>studying</em></h2>
+
+    <div class="edu-degrees">
+      <div class="edu-main reveal reveal-scale reveal-delay-2">
+        <div class="edu-period-tag">Oct 2023 to Jan 2027 · Hamburg, Germany</div>
+        <div class="edu-degree serif">M.Sc. Data Science</div>
+        <div class="edu-uni">Technische Universität Hamburg (TUHH)</div>
+        <p style="font-size:0.84rem;color:var(--text-muted);">Master's studies with a focus on AI, big-data analytics and causal data science, done alongside my role at Hapag-Lloyd.</p>
+        <div class="edu-tags">
+          <span class="tag">Artificial Intelligence</span>
+          <span class="tag">Big Data Analytics</span>
+          <span class="tag">Data Visualisation</span>
+          <span class="tag">Causal Data Science</span>
+        </div>
+      </div>
+      <div class="edu-main reveal reveal-scale reveal-delay-3">
+        <div class="edu-period-tag">2019 to 2023 · Thane, India</div>
+        <div class="edu-degree serif">B.E. Computer Engineering</div>
+        <div class="edu-uni">A.P. Shah Institute of Technology</div>
+        <p style="font-size:0.84rem;color:var(--text-muted);">Bachelor's in computer engineering. CGPA 8.86 / 10.0 (German equivalent 1.5). Originally from Mumbai, India.</p>
+        <div class="edu-tags">
+          <span class="tag">Computer Engineering</span>
+          <span class="tag">Software Development</span>
+          <span class="tag">Machine Learning</span>
+        </div>
+      </div>
+    </div>
+
+    <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:1.25rem;" class="reveal">Thesis &amp; research (click to expand)</p>
+    <div class="edu-grid">
+      <details class="card edu-card reveal" open>
+        <summary>🧭 Master's Thesis, with Hapag-Lloyd AG<div class="chevron">▾</div></summary>
+        <div class="edu-detail">
+          <strong style="color:var(--text);">"Data-Driven Decision Support for Forecasting and Driver Analysis in Maritime Trade"</strong> (Jun to Dec 2026). Supervised by Prof. Dr. Martin Kliesch, Institute for Quantum-Inspired &amp; Quantum Optimization.<br/><br/>
+          Panel modelling across trade lanes on 5+ years of weekly data, deliberately spanning multiple regimes: pre-COVID, COVID shock, peak, trough, and Red Sea disruption.<br/><br/>
+          Benchmarks statistical baselines (SARIMA/SARIMAX, Prophet) against gradient-boosted models under walk-forward validation, with SHAP-based driver attribution and stability analysis for interpretable, non-black-box output.
+        </div>
+      </details>
+      <details class="card edu-card reveal reveal-delay-1">
+        <summary>📚 Systematic Literature Review, PRISMA 2020<div class="chevron">▾</div></summary>
+        <div class="edu-detail">
+          <strong style="color:var(--text);">"Consumer Perception of AI-Based Software: Trust and Interface Design"</strong>, a single-author review (Jun to Oct 2025) conducted to PRISMA 2020 reporting standards.<br/><br/>
+          Screened 124 records down to 17 included reports through staged de-duplication, title/abstract and full-text screening with logged exclusions.<br/><br/>
+          Built a two-cluster framework separating task-specific trust factors from interface-specific design cues, plus a five-dimension study-level certainty rubric, synthesised into actionable design recommendations.
+        </div>
+      </details>
+      <details class="card edu-card reveal reveal-delay-2">
+        <summary>📝 Publications<div class="chevron">▾</div></summary>
+        <div class="edu-detail">
+          <strong style="color:var(--text);">Motion Detection using Background Subtraction Techniques</strong>, International Engineering Journal for Research and Development, Jan 2023.<br/><br/>
+          <strong style="color:var(--text);">Comparative Analysis of Classification Models for Indic Languages</strong>, conference paper, Oct 2022.
+        </div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- PROJECTS -->
+<section id="projects" class="section">
+  <div class="container">
+    <p class="section-label reveal">Projects</p>
+    <h2 class="reveal reveal-delay-1" style="margin-bottom:2.5rem;">Things I've<br/><em>built</em></h2>
+    <div class="projects-grid">
+
+      <div class="card proj-card reveal reveal-rot">
+        <div class="proj-title">LLM Trade-Strategy Pipeline</div>
+        <div class="proj-desc">Production GenAI tool at Hapag-Lloyd that converts a trade manager's idea into a structured volume-opportunity briefing. Split research and writer prompt architecture with prompt caching and match-confidence tiering, turning a 2 to 3 hour manual grind into under an hour.</div>
+        <div class="proj-tags">
+          <span class="tag cool">LLM Agents</span>
+          <span class="tag cool">Prompt Caching</span>
+          <span class="tag">Databricks</span>
+          <span class="tag">Python</span>
+        </div>
+        <span class="proj-link" style="color:var(--text-muted);cursor:default;font-size:0.77rem;">Internal · Hapag-Lloyd AG</span>
+      </div>
+
+      <div class="card proj-card reveal reveal-rot reveal-delay-1">
+        <div class="proj-title">Freight-Rate Forecasting Engine</div>
+        <div class="proj-desc">Multi-horizon (7/14/30-day) freight-rate forecasting across global trade lanes. Panel models fusing internal segmentation data with macro and event signals (PMI, Baltic Dry, container freight indices, GDELT), validated with walk-forward backtesting and SHAP driver attribution.</div>
+        <div class="proj-tags">
+          <span class="tag cool">Time-Series</span>
+          <span class="tag cool">SHAP</span>
+          <span class="tag">Gradient Boosting</span>
+          <span class="tag">Python</span>
+        </div>
+        <span class="proj-link" style="color:var(--text-muted);cursor:default;font-size:0.77rem;">Internal · Hapag-Lloyd AG</span>
+      </div>
+
+      <div class="card proj-card reveal reveal-rot reveal-delay-2">
+        <div class="proj-title">Diego, the Conversation Simulator</div>
+        <div class="proj-desc">AI-powered workplace conversation simulator built at the AI Beavers Hackathon, Hamburg. Real-time voice pipeline on ElevenLabs with emotional-state modulation, so you can rehearse that awkward chat with your boss against a responsive AI counterpart, no real feelings harmed.</div>
+        <div class="proj-tags">
+          <span class="tag cool">ElevenLabs</span>
+          <span class="tag cool">Voice AI</span>
+          <span class="tag">Real-time</span>
+          <span class="tag">Hackathon</span>
+        </div>
+        <span class="proj-link" style="color:var(--text-muted);cursor:default;font-size:0.77rem;">Hackathon · Jun 2026</span>
+      </div>
+
+      <div class="card proj-card reveal reveal-rot reveal-delay-3">
+        <div class="proj-title">Cityblock</div>
+        <div class="proj-desc">Animated city cross-section web app: an interactive visualisation of an urban slice driven by live weather API data. Front-end built end-to-end, solo, entirely too much time spent on the little animated clouds.</div>
+        <div class="proj-tags">
+          <span class="tag cool">Data Viz</span>
+          <span class="tag">JavaScript</span>
+          <span class="tag">Live API</span>
+        </div>
+        <span class="proj-link" style="color:var(--text-muted);cursor:default;font-size:0.77rem;">Personal · 2025</span>
+      </div>
+
+      <div class="card proj-card reveal reveal-rot">
+        <div class="proj-title">Student Attentiveness Detection</div>
+        <div class="proj-desc">Real-time attentiveness model combining facial-expression and body-language analysis, integrated into an educational platform to give teachers actionable engagement insights (and gently flag the back row).</div>
+        <div class="proj-tags">
+          <span class="tag cool">Computer Vision</span>
+          <span class="tag">Deep Learning</span>
+          <span class="tag">Python</span>
+        </div>
+        <span class="proj-link" style="color:var(--text-muted);cursor:default;font-size:0.77rem;">2022</span>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- SKILLS -->
+<section id="skills" class="section">
+  <div class="container">
+    <p class="section-label reveal">Skills &amp; Tools</p>
+    <h2 class="reveal reveal-delay-1" style="margin-bottom:2.5rem;">My <em>toolkit</em></h2>
+    <div class="skills-grid">
+
+      <div class="card reveal reveal-scale">
+        <div class="skill-group-label">Languages &amp; Tools</div>
+        <div class="skill-pills">
+          <span class="skill-pill">Python</span>
+          <span class="skill-pill">pandas / NumPy</span>
+          <span class="skill-pill">scikit-learn</span>
+          <span class="skill-pill">statsmodels</span>
+          <span class="skill-pill">SQL</span>
+          <span class="skill-pill">Git</span>
+          <span class="skill-pill">Bash</span>
+          <span class="skill-pill">Selenium</span>
+        </div>
+      </div>
+
+      <div class="card reveal reveal-scale reveal-delay-1">
+        <div class="skill-group-label">ML &amp; Statistics</div>
+        <div class="skill-pills">
+          <span class="skill-pill">Time-Series Forecasting</span>
+          <span class="skill-pill">SARIMA / SARIMAX</span>
+          <span class="skill-pill">Prophet</span>
+          <span class="skill-pill">Panel Regression</span>
+          <span class="skill-pill">Gradient Boosting</span>
+          <span class="skill-pill">Walk-Forward Validation</span>
+          <span class="skill-pill">SHAP / Interpretability</span>
+        </div>
+      </div>
+
+      <div class="card reveal reveal-scale reveal-delay-2">
+        <div class="skill-group-label">GenAI &amp; LLMs</div>
+        <div class="skill-pills">
+          <span class="skill-pill ai-pill">Prompt Engineering</span>
+          <span class="skill-pill ai-pill">Prompt Caching</span>
+          <span class="skill-pill ai-pill">Multi-Agent Architectures</span>
+          <span class="skill-pill ai-pill">RAG</span>
+          <span class="skill-pill ai-pill">MCP Servers</span>
+          <span class="skill-pill ai-pill">Anthropic / Groq / ElevenLabs</span>
+        </div>
+      </div>
+
+      <div class="card reveal reveal-scale reveal-delay-3">
+        <div class="skill-group-label">Data Platforms</div>
+        <div class="skill-pills">
+          <span class="skill-pill">Databricks (Apps, Model Serving)</span>
+          <span class="skill-pill">AWS (Lambda, core)</span>
+          <span class="skill-pill">Big-Data Pipelines</span>
+        </div>
+      </div>
+
+      <div class="card reveal reveal-scale">
+        <div class="skill-group-label">BI &amp; Visualisation</div>
+        <div class="skill-pills">
+          <span class="skill-pill">Power BI</span>
+          <span class="skill-pill">Tableau</span>
+          <span class="skill-pill">Qlik</span>
+          <span class="skill-pill">matplotlib / Plotly</span>
+        </div>
+      </div>
+
+      <div class="card reveal reveal-scale reveal-delay-1">
+        <div class="skill-group-label">Research &amp; Languages</div>
+        <div class="skill-pills">
+          <span class="skill-pill">PRISMA 2020</span>
+          <span class="skill-pill">Evidence Synthesis</span>
+          <span class="skill-pill">LaTeX / APA</span>
+          <span class="skill-pill">English C1</span>
+          <span class="skill-pill">German B1</span>
+          <span class="skill-pill">Hindi C2</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ABOUT -->
+<section id="about" class="section">
+  <div class="container">
+    <p class="section-label reveal">About Me</p>
+    <div class="about-grid">
+      <div class="photo-frame reveal reveal-left">
+        <div class="photo-placeholder">
+          <div class="photo-initials">HP</div>
+          <div class="photo-label">your photo goes here<br/>(swap out .photo-placeholder<br/>for an image)</div>
+        </div>
+      </div>
+      <div class="reveal reveal-right reveal-delay-1">
+        <h2 style="margin-bottom:1.25rem;">Forecasting the future,<br/><em>one lane at a time.</em></h2>
+        <p style="margin-bottom:1rem;font-size:0.94rem;">
+          I'm a Data Science M.Sc. candidate at TU Hamburg with two years inside Hapag-Lloyd's commercial engine, where my forecasting models and GenAI tools don't just sit in a notebook feeling clever. They reach trade managers, directors and dashboards, and help decide how a global carrier prices and moves cargo. The part I enjoy most is the messy middle: the gap between raw, contradictory data and a decision someone is willing to stake real money on.
+        </p>
+        <p style="margin-bottom:1rem;font-size:0.94rem;">
+          My work lives at the intersection of time-series forecasting, commercial strategy and applied GenAI: panel models and gradient boosting on one side, multi-agent LLM pipelines on the other, with interpretability (SHAP, driver attribution, stability analysis) keeping everyone honest. I care less about the fanciest model and more about the one a business will actually trust, understand and use.
+        </p>
+        <p style="font-size:0.94rem;">
+          Away from the forecasts, I recharge on the move and in good company: cooking for friends, hiking somewhere with no signal, travelling to a new city, and disappearing into a good book. Curiosity is the throughline, whether the subject is a freight index or a mountain trail.
+        </p>
+        <div class="interest-chips">
+          <span class="interest-chip">🍳 Cooking</span>
+          <span class="interest-chip">🥾 Hiking</span>
+          <span class="interest-chip">✈️ Travelling</span>
+          <span class="interest-chip">📚 Reading</span>
+          <span class="interest-chip">🏃 Running</span>
+          <span class="interest-chip">📷 Photography</span>
+          <span class="interest-chip">♟️ Chess</span>
+          <span class="interest-chip">☕ Coffee</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY ME -->
+<section id="why-me" class="section">
+  <div class="container">
+    <p class="section-label reveal">Why Me</p>
+    <h2 class="reveal reveal-delay-1" style="margin-bottom:2.5rem;">What I bring<br/><em>to a team</em></h2>
+    <div class="why-grid">
+
+      <div class="card reveal reveal-scale">
+        <div class="why-emoji">🏭</div>
+        <div style="font-size:0.95rem;font-weight:600;color:var(--text);margin-bottom:0.5rem;">Production, not just notebooks</div>
+        <p style="font-size:0.84rem;line-height:1.7;">My models and LLM tools run in production and get used by commercial teams. I've shipped, deployed on Databricks, cut a load time by 86%, and owned the boring-but-critical last mile everyone quietly hopes someone else will do.</p>
+      </div>
+
+      <div class="card reveal reveal-scale reveal-delay-1">
+        <div class="why-emoji">🔍</div>
+        <div style="font-size:0.95rem;font-weight:600;color:var(--text);margin-bottom:0.5rem;">Interpretable by default</div>
+        <p style="font-size:0.84rem;line-height:1.7;">I don't hand over black boxes. Walk-forward validation instead of tidy random splits, SHAP-based driver attribution, and stability analysis. If a model can't explain itself, it doesn't get to make decisions.</p>
+      </div>
+
+      <div class="card reveal reveal-scale reveal-delay-2">
+        <div class="why-emoji">🗣️</div>
+        <div style="font-size:0.95rem;font-weight:600;color:var(--text);margin-bottom:0.5rem;">I speak both languages</div>
+        <p style="font-size:0.84rem;line-height:1.7;">Fluent in Python and in "so what does this actually mean for Q3?". I translate commercial questions into analytical products and present to non-technical directors. A model only matters if the business trusts and uses it.</p>
+      </div>
+
+      <div class="card reveal reveal-scale reveal-delay-3">
+        <div class="why-emoji">🧭</div>
+        <div style="font-size:0.95rem;font-weight:600;color:var(--text);margin-bottom:0.5rem;">Rigorous and already here</div>
+        <p style="font-size:0.84rem;line-height:1.7;">PRISMA-standard research discipline, published work, and two years inside a German enterprise. Based in Hamburg, German at B1 and climbing, and available for full-time work right now. No relocation cliffhanger, no notice period drama.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- CONTACT -->
+<section id="contact" class="section">
+  <div class="container">
+    <div class="contact-wrap reveal reveal-scale">
+      <p class="section-label" style="justify-content:center;">Get In Touch</p>
+      <h2 style="margin-bottom:0.75rem;">Let's <em>talk</em></h2>
+      <p style="margin-bottom:0.5rem;">
+        Available now for full-time Data Scientist and Applied ML roles: forecasting, applied GenAI, or anywhere uncertainty needs to become a decision. If something here resonated, or you just want to argue about model interpretability, say hello.
+      </p>
+      <a href="mailto:hemantparakh93@gmail.com" class="contact-email">hemantparakh93@gmail.com</a>
+      <div class="contact-links">
+        <a href="mailto:hemantparakh93@gmail.com" class="contact-link">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          Email
+        </a>
+        <a href="https://www.linkedin.com/in/hemant-parakh" target="_blank" rel="noopener" class="contact-link">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+          LinkedIn
+        </a>
+        <a href="https://github.com/Hemant-Parakh" target="_blank" rel="noopener" class="contact-link">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.37.5 0 5.87 0 12.5c0 5.3 3.44 9.8 8.21 11.39.6.11.82-.26.82-.58l-.01-2.05c-3.34.73-4.04-1.61-4.04-1.61-.55-1.39-1.33-1.76-1.33-1.76-1.09-.74.08-.73.08-.73 1.2.09 1.84 1.24 1.84 1.24 1.07 1.83 2.81 1.3 3.5.99.11-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.12-.3-.54-1.52.12-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.29-1.55 3.3-1.23 3.3-1.23.66 1.66.24 2.88.12 3.18.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.63-5.49 5.92.43.37.81 1.1.81 2.22l-.01 3.29c0 .32.22.7.83.58A12.01 12.01 0 0 0 24 12.5C24 5.87 18.63.5 12 .5z"/></svg>
+          GitHub
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <p>Built by Hemant Parakh in Hamburg, probably with a coffee going cold nearby · <a href="https://www.linkedin.com/in/hemant-parakh">linkedin.com/in/hemant-parakh</a></p>
+  </div>
+</footer>
+
+<script>
+// ── Scroll progress + nav shadow ──
+const progress = document.getElementById('progress');
+const navbar = document.getElementById('navbar');
+window.addEventListener('scroll', () => {
+  const h = document.documentElement;
+  const scrolled = h.scrollTop / (h.scrollHeight - h.clientHeight);
+  progress.style.width = (scrolled * 100) + '%';
+  navbar.classList.toggle('scrolled', window.scrollY > 20);
+}, { passive: true });
+
+// ── Smooth-scroll for every in-page link (this is what makes the buttons "work") ──
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    const id = a.getAttribute('href');
+    if (id.length > 1) {
+      const el = document.querySelector(id);
+      if (el) {
+        e.preventDefault();
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        document.getElementById('mobileMenu').classList.remove('open');
+      }
+    }
+  });
+});
+
+// ── Hamburger ──
+document.getElementById('hamburger').addEventListener('click', () =>
+  document.getElementById('mobileMenu').classList.toggle('open'));
+
+// ── Logo does a happy spin when clicked ──
+const navLogo = document.getElementById('navLogo');
+navLogo.addEventListener('click', () => {
+  navLogo.classList.add('spin');
+  setTimeout(() => navLogo.classList.remove('spin'), 700);
+});
+
+// ── Reveal on scroll ──
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); }});
+}, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+setTimeout(() => document.querySelectorAll('#hero .reveal').forEach(el => el.classList.add('visible')), 80);
+
+// ── Respect reduced-motion for the JS-driven flourishes ──
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+if (!reduceMotion) {
+  // 3D tilt on cards
+  document.querySelectorAll('.card').forEach(card => {
+    card.addEventListener('mousemove', e => {
+      const r = card.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width - 0.5;
+      const y = (e.clientY - r.top) / r.height - 0.5;
+      card.style.transform = `perspective(800px) rotateX(${-y * 7}deg) rotateY(${x * 7}deg) translateY(-4px)`;
+    });
+    card.addEventListener('mouseleave', () => { card.style.transform = ''; });
+  });
+
+  // Magnetic buttons
+  document.querySelectorAll('.btn').forEach(b => {
+    b.addEventListener('mousemove', e => {
+      const r = b.getBoundingClientRect();
+      b.style.transform = `translate(${(e.clientX - r.left - r.width / 2) * 0.35}px, ${(e.clientY - r.top - r.height / 2) * 0.5}px)`;
+    });
+    b.addEventListener('mouseleave', () => { b.style.transform = ''; });
+  });
+}
+
+// ── Oscilloscope + Terminal Canvas ──
+(function() {
+  const canvas = document.getElementById('hero-canvas');
+  const ctx = canvas.getContext('2d');
+  const html = document.documentElement;
+  let W, H, animId, t = 0;
+  let intensity = 1;
+
+  const termLines = [
+    '> python train_forecast.py --horizon 30',
+    '  walk-forward split 7/12 ...',
+    '  MAPE: 4.82%  |  baseline: 9.14%',
+    '> import shap',
+    '  explainer(model, X_valid)',
+    '  top driver: container_freight_idx',
+    '> SELECT lane, teu FROM shipments',
+    '  WHERE week >= "2025-W01";',
+    '> anthropic.messages.create(...)',
+    '  cache_read: 18420 tokens',
+    '> databricks model-serving deploy',
+    '  cold-start removed  -86% load',
+    '> prophet.fit(df)',
+    '  seasonality: additive',
+    '> git commit -m "final_v2_REALLY_final"',
+    '  please work. please.',
+    '> sudo make me a forecast',
+    '  permission denied (nice try)',
+    '> curl /api/v1/forecast',
+    '  {"horizon": 14, "conf": 0.91}',
+    '> gdelt.fetch(theme="ECON")',
+    '  1,204 events ingested',
+    '> backtest --regime redsea',
+    '  stability: 0.87 across windows',
+  ];
+  let activeLines = [];
+  let lineTimer = 0;
+
+  function resize() { W = canvas.width = canvas.offsetWidth; H = canvas.height = canvas.offsetHeight; }
+  function isLight() { return html.getAttribute('data-theme') !== 'dark'; }
+
+  function drawGrid() {
+    const light = isLight();
+    const gridColor = light ? 'rgba(31,111,139,' : 'rgba(100,181,214,';
+    const cols = 12, rows = 8, cw = W / cols, ch = H / rows;
+    ctx.lineWidth = 0.5;
+    for (let i = 1; i < cols; i++) {
+      ctx.beginPath(); ctx.moveTo(i * cw, 0); ctx.lineTo(i * cw, H);
+      ctx.strokeStyle = gridColor + (i % 3 === 0 ? '0.07' : '0.03') + ')'; ctx.stroke();
+    }
+    for (let j = 1; j < rows; j++) {
+      ctx.beginPath(); ctx.moveTo(0, j * ch); ctx.lineTo(W, j * ch);
+      ctx.strokeStyle = gridColor + (j % 2 === 0 ? '0.07' : '0.03') + ')'; ctx.stroke();
+    }
+    ctx.strokeStyle = gridColor + '0.12)'; ctx.lineWidth = 0.8;
+    const cx = W/2, cy = H/2;
+    for (let i = 0; i <= cols; i++) { ctx.beginPath(); ctx.moveTo(i*cw, cy-4); ctx.lineTo(i*cw, cy+4); ctx.stroke(); }
+    for (let j = 0; j <= rows; j++) { ctx.beginPath(); ctx.moveTo(cx-4, j*ch); ctx.lineTo(cx+4, j*ch); ctx.stroke(); }
+  }
+
+  function drawWaveform(yBase, amplitude, freq, phase, color, lineW, opacity, waveType) {
+    ctx.beginPath(); ctx.lineWidth = lineW;
+    for (let x = 0; x <= W; x += 2) {
+      const ratio = x / W; let y;
+      if (waveType === 'sine') {
+        y = yBase + Math.sin(ratio * Math.PI * 2 * freq + phase) * amplitude
+              + Math.sin(ratio * Math.PI * 2 * freq * 2.3 + phase * 1.3) * amplitude * 0.18;
+      } else if (waveType === 'square') {
+        const raw = Math.sin(ratio * Math.PI * 2 * freq + phase);
+        y = yBase + (raw > 0 ? 1 : -1) * amplitude * 0.75;
+      } else {
+        y = yBase + Math.sin(ratio * Math.PI * 2 * freq + phase) * amplitude * 0.5
+              + Math.sin(ratio * Math.PI * 2 * freq * 3.7 + phase * 2.1) * amplitude * 0.3
+              + Math.sin(ratio * Math.PI * 2 * freq * 7.3 + phase * 0.7) * amplitude * 0.15;
+      }
+      x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.strokeStyle = color.replace('OPACITY', opacity);
+    ctx.shadowColor = color.replace('OPACITY', '0.6');
+    ctx.shadowBlur = lineW * 6; ctx.stroke(); ctx.shadowBlur = 0;
+  }
+
+  function spawnLine() {
+    if (activeLines.length >= 6) return;
+    const text = termLines[Math.floor(Math.random() * termLines.length)];
+    activeLines.push({
+      text, col: Math.random() > 0.5 ? 'warm' : 'cool',
+      x: Math.random() * (W * 0.5) + (Math.random() > 0.5 ? W * 0.55 : W * 0.02),
+      y: Math.random() * (H * 0.7) + H * 0.1,
+      alpha: 0, life: 0, maxLife: 160 + Math.random() * 100,
+    });
+  }
+
+  function drawTerminal() {
+    const light = isLight();
+    const coolBase = light ? '31,111,139' : '100,181,214';
+    const warmBase = light ? '181,118,42' : '201,169,110';
+    ctx.font = '500 11px "JetBrains Mono", monospace';
+    activeLines = activeLines.filter(l => l.life < l.maxLife);
+    activeLines.forEach(l => {
+      l.life++;
+      l.alpha = l.life < 20 ? l.life/20 : l.life > l.maxLife - 20 ? (l.maxLife - l.life)/20 : 1;
+      const base = l.col === 'warm' ? warmBase : coolBase;
+      ctx.fillStyle = `rgba(${base},${l.alpha * 0.22})`;
+      ctx.fillText(l.text, l.x, l.y);
+    });
+  }
+
+  function draw() {
+    const light = isLight();
+    ctx.fillStyle = light ? 'rgba(245,244,241,0.18)' : 'rgba(13,10,8,0.18)';
+    ctx.fillRect(0, 0, W, H);
+    t += 0.012;
+    drawGrid();
+    const coolC = light ? 'rgba(31,111,139,OPACITY)' : 'rgba(100,181,214,OPACITY)';
+    const warmC = light ? 'rgba(181,118,42,OPACITY)' : 'rgba(201,169,110,OPACITY)';
+    drawWaveform(H * 0.55, H * 0.12, 2, t, coolC, 1.5, '0.5', 'sine');
+    drawWaveform(H * 0.45, H * 0.07, 3, t * 1.4 + 1, warmC, 1.2, '0.25', 'sine');
+    lineTimer++;
+    if (lineTimer % 55 === 0) spawnLine();
+    drawTerminal();
+    animId = requestAnimationFrame(draw);
+  }
+
+  function start() {
+    cancelAnimationFrame(animId); resize();
+    setTimeout(spawnLine, 400); setTimeout(spawnLine, 900); setTimeout(spawnLine, 1500);
+    draw();
+  }
+  window.addEventListener('resize', resize);
+  start();
+})();
+</script>
+</body>
+</html>
