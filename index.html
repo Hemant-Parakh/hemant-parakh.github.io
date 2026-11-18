@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="no-js">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -16,32 +16,46 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..700&display=swap" rel="stylesheet">
+<script>document.documentElement.classList.replace('no-js', 'js');</script>
 <style>
   :root {
     color-scheme: light dark;
     --paper: #faf8f3;
+    --card: #fffdf8;
     --ink: #1d1c1a;
     --muted: #6d685f;
     --rule: #e4dfd4;
     --hover: rgba(29, 28, 26, 0.06);
     --accent: #b8432c;
+    --live: #2f8a57;
     --band80: rgba(184, 67, 44, 0.10);
     --band50: rgba(184, 67, 44, 0.20);
     --zone: rgba(29, 28, 26, 0.035);
+    --ink-rgb: 29, 28, 26;
+    --accent-rgb: 184, 67, 44;
+    --paper-rgb: 250, 248, 243;
     --serif: "Newsreader", Georgia, "Times New Roman", serif;
     --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --mono: ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    --spring: cubic-bezier(0.34, 1.5, 0.64, 1);
+    --smooth: cubic-bezier(0.2, 0.75, 0.2, 1);
   }
   @media (prefers-color-scheme: dark) {
     :root {
       --paper: #151412;
+      --card: #1c1b18;
       --ink: #ebe6dc;
       --muted: #a39d91;
-      --rule: #2c2a26;
+      --rule: #2e2c28;
       --hover: rgba(235, 230, 220, 0.07);
       --accent: #ec7a5e;
+      --live: #53b77d;
       --band80: rgba(236, 122, 94, 0.12);
       --band50: rgba(236, 122, 94, 0.24);
       --zone: rgba(235, 230, 220, 0.04);
+      --ink-rgb: 235, 230, 220;
+      --accent-rgb: 236, 122, 94;
+      --paper-rgb: 21, 20, 18;
     }
   }
 
@@ -57,8 +71,10 @@
     font-optical-sizing: auto;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
+    overflow-x: hidden;
   }
   ::selection { background: var(--band50); }
+  img { max-width: 100%; }
 
   a {
     color: inherit;
@@ -70,35 +86,139 @@
   a:hover { color: var(--accent); }
   :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 2px; }
 
-  .skip { position: absolute; left: -999px; top: 0.5rem; background: var(--ink); color: var(--paper); padding: 0.4rem 0.8rem; font-family: var(--sans); font-size: 0.9rem; z-index: 20; }
+  .skip { position: absolute; left: -999px; top: 0.5rem; background: var(--ink); color: var(--paper); padding: 0.4rem 0.8rem; font-family: var(--sans); font-size: 0.9rem; z-index: 40; }
   .skip:focus { left: 0.5rem; }
 
   .wrap { max-width: 68rem; margin: 0 auto; padding: 0 1.5rem; }
 
+  /* Scroll progress */
+  #progress { position: fixed; top: 0; left: 0; right: 0; height: 3px; background: var(--accent); transform-origin: 0 50%; transform: scaleX(0); z-index: 30; pointer-events: none; }
+
   /* Header */
-  .top { position: sticky; top: 0; z-index: 10; background: var(--paper); border-bottom: 1px solid var(--rule); }
+  .top { position: sticky; top: 0; z-index: 20; background: var(--paper); border-bottom: 1px solid var(--rule); }
   .top .wrap { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; min-height: 3.6rem; }
-  .name { font-size: 1.08rem; font-weight: 600; text-decoration: none; white-space: nowrap; }
-  .name:hover { color: var(--ink); }
-  .top nav { display: flex; align-items: center; gap: 0.15rem; font-family: var(--sans); font-size: 0.875rem; }
-  .top nav a { flex: 0 0 auto; text-decoration: none; padding: 0.35rem 0.6rem; border-radius: 4px; }
-  .top nav a:hover { background: var(--hover); color: var(--ink); }
-  .top a.cv { border: 1px solid var(--ink); margin-left: 0.45rem; }
+  .brand { display: flex; align-items: center; gap: 0.6rem; font-size: 1.08rem; font-weight: 600; text-decoration: none; white-space: nowrap; cursor: pointer; }
+  .brand:hover { color: var(--ink); }
+  .brand .mono { width: 30px; height: 30px; flex: 0 0 auto; transition: transform 0.8s var(--spring); }
+  .brand.spin .mono { transform: rotate(360deg) scale(1.12); }
+  .top nav { display: flex; align-items: center; gap: 0.1rem; font-family: var(--sans); font-size: 0.875rem; }
+  .top nav a { flex: 0 0 auto; text-decoration: none; padding: 0.35rem 0.6rem; border-radius: 3px; transition: background 0.2s, color 0.2s, transform 0.25s var(--spring); }
+  .top nav a:hover { background: var(--hover); color: var(--ink); transform: translateY(-2px); }
+  .top nav a.gh { display: inline-flex; align-items: center; justify-content: center; width: 2.1rem; height: 2.1rem; padding: 0; margin-left: 0.3rem; border: 1px solid var(--rule); border-radius: 50%; }
+  .top nav a.gh:hover { border-color: var(--ink); transform: translateY(-2px) rotate(8deg); }
+  .top a.cv { border: 1px solid var(--ink); margin-left: 0.4rem; }
   .top a.cv:hover { background: var(--ink); color: var(--paper); }
-  .top .cv-m { display: none; font-family: var(--sans); font-size: 0.875rem; text-decoration: none; padding: 0.3rem 0.65rem; border-radius: 4px; }
+  .top .cv-m { display: none; font-family: var(--sans); font-size: 0.875rem; text-decoration: none; padding: 0.3rem 0.65rem; border-radius: 3px; }
 
-  /* Intro */
-  .intro { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 3.5rem; align-items: end; padding: 4.5rem 0 3.6rem; }
-  h1 { font-weight: 400; font-size: clamp(2.7rem, 6vw, 4.3rem); line-height: 1; letter-spacing: -0.02em; margin: 0 0 1.1rem; }
-  .lede { font-size: 1.45rem; line-height: 1.35; font-style: italic; margin: 0 0 1.4rem; }
-  .intro p { max-width: 34rem; margin: 0 0 0.9rem; }
-  .links { font-family: var(--sans); font-size: 0.95rem; display: flex; flex-wrap: wrap; gap: 0.4rem 1.2rem; margin-top: 1.6rem !important; }
+  /* Hero */
+  .hero { position: relative; min-height: calc(100vh - 3.6rem); min-height: calc(100svh - 3.6rem); display: flex; flex-direction: column; justify-content: flex-end; overflow: hidden; border-bottom: 1px solid var(--rule); }
+  #scope { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .hero::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(90deg, rgba(var(--paper-rgb), 0.9) 0%, rgba(var(--paper-rgb), 0.72) 38%, rgba(var(--paper-rgb), 0) 72%), linear-gradient(0deg, rgba(var(--paper-rgb), 0.6) 0%, rgba(var(--paper-rgb), 0) 45%); }
+  .hero .wrap { position: relative; z-index: 1; width: 100%; padding-top: 3rem; padding-bottom: clamp(3rem, 9vh, 6rem); }
+  .status { display: flex; align-items: center; gap: 0.65rem; font-family: var(--sans); font-size: 0.85rem; color: var(--muted); margin: 0 0 1.6rem; }
+  .status .dot { width: 8px; height: 8px; flex: 0 0 auto; border-radius: 50%; background: var(--live); animation: ping 2.4s ease-out infinite; }
+  @keyframes ping {
+    0% { box-shadow: 0 0 0 0 rgba(47, 138, 87, 0.5); }
+    75% { box-shadow: 0 0 0 10px rgba(47, 138, 87, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(47, 138, 87, 0); }
+  }
+  .hero h1 { font-weight: 400; font-size: clamp(2.9rem, 7.6vw, 6.1rem); line-height: 1.02; letter-spacing: -0.025em; margin: 0 0 1.7rem; }
+  .hero h1 .line { display: block; overflow: hidden; padding-bottom: 0.24em; margin-bottom: -0.24em; }
+  .hero h1 .line > span { display: inline-block; transition: transform 1.05s var(--smooth); }
+  .js .hero:not(.in) h1 .line > span { transform: translateY(110%); }
+  .hero h1 .line:nth-child(2) > span { transition-delay: 0.12s; }
+  .hero h1 .line:nth-child(3) > span { transition-delay: 0.24s; }
+  .wave { display: inline-block; transform-origin: 70% 75%; animation: wave 2.8s ease-in-out 1.3s infinite; }
+  @keyframes wave { 0%, 60%, 100% { transform: rotate(0); } 10% { transform: rotate(16deg); } 20% { transform: rotate(-8deg); } 30% { transform: rotate(16deg); } 40% { transform: rotate(-4deg); } 50% { transform: rotate(10deg); } }
+  .nowrap { white-space: nowrap; }
+  .mark { position: relative; white-space: nowrap; }
+  .mark svg { position: absolute; left: -2%; bottom: -0.2em; width: 104%; height: auto; overflow: visible; }
+  .mark path { fill: none; stroke: var(--accent); stroke-width: 3.6; stroke-linecap: round; }
+  .js .mark path { stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset 0.9s ease 1.05s; }
+  .js .hero.in .mark path { stroke-dashoffset: 0; }
+  .hero-sub { max-width: 36rem; font-size: 1.2rem; line-height: 1.55; margin: 0 0 2.2rem; }
+  .cta { display: flex; flex-wrap: wrap; align-items: center; gap: 0.8rem 1rem; }
+  .cta .minor { font-family: var(--sans); font-size: 0.92rem; display: flex; gap: 1rem; margin-left: 0.4rem; }
+  .scroll-cue { position: absolute; right: 1.5rem; bottom: 1.6rem; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 0.6rem; font-family: var(--sans); font-size: 0.72rem; letter-spacing: 0.08em; color: var(--muted); }
+  .scroll-cue span { writing-mode: vertical-rl; }
+  .scroll-cue::after { content: ""; width: 1px; height: 42px; background: var(--muted); animation: cue 1.9s ease-in-out infinite; }
+  @keyframes cue { 0%, 100% { opacity: 0; transform: translateY(-8px); } 50% { opacity: 1; transform: translateY(0); } }
 
-  .fig { margin: 0; }
+  /* Buttons */
+  .btn { display: inline-flex; align-items: center; gap: 0.55rem; font-family: var(--sans); font-size: 0.92rem; font-weight: 500; padding: 0.75rem 1.2rem; border-radius: 3px; border: 1px solid var(--ink); text-decoration: none; transition: background 0.2s, color 0.2s, box-shadow 0.25s, transform 0.15s ease-out; }
+  .btn svg { flex: 0 0 auto; }
+  .btn-primary { background: var(--ink); color: var(--paper); }
+  .btn-primary:hover { color: var(--paper); box-shadow: 5px 5px 0 var(--accent); }
+  .btn-ghost { background: var(--paper); color: var(--ink); }
+  .btn-ghost:hover { color: var(--ink); box-shadow: 5px 5px 0 var(--accent); }
+
+  /* Reveal transitions */
+  .js .reveal { opacity: 0; transform: translateY(38px); filter: blur(6px); transition: opacity 0.8s ease, transform 0.95s var(--spring), filter 0.8s ease; }
+  .js .reveal.from-left { transform: translateX(-64px) rotate(-2.5deg); }
+  .js .reveal.from-right { transform: translateX(64px) rotate(2.5deg); }
+  .js .reveal.pop { transform: scale(0.82); }
+  .js .reveal.flip { transform: perspective(900px) rotateX(-28deg) translateY(30px); transform-origin: 50% 0; }
+  .js .reveal.tilt { transform: rotate(-6deg) translateY(44px) scale(0.92); }
+  .js .reveal.visible { opacity: 1; transform: none; filter: none; }
+  .d1 { transition-delay: 0.08s !important; }
+  .d2 { transition-delay: 0.16s !important; }
+  .d3 { transition-delay: 0.24s !important; }
+  .d4 { transition-delay: 0.32s !important; }
+  .d5 { transition-delay: 0.4s !important; }
+
+  /* Sections */
+  .sec { display: grid; grid-template-columns: 10rem minmax(0, 1fr); gap: 2.5rem; padding: 3.6rem 0; border-top: 1px solid var(--rule); }
+  .sec:first-child { border-top: 0; }
+  .sec > h2 { margin: 0; font-size: 1.2rem; font-weight: 400; font-style: italic; color: var(--muted); position: sticky; top: 4.8rem; align-self: start; }
+  .sec > h2::after { content: ""; display: block; width: 1.6rem; height: 2px; margin-top: 0.45rem; background: var(--accent); transform-origin: 0 50%; transition: transform 0.6s var(--smooth) 0.3s; }
+  .js .sec > h2.reveal:not(.visible)::after { transform: scaleX(0); }
+  .intro-line { margin: 0 0 1.8rem; max-width: 40rem; font-size: 1.3rem; line-height: 1.45; }
+
+  /* Index cards */
+  .card { position: relative; height: 100%; background: var(--card); border: 1px solid var(--rule); border-radius: 3px; padding: 1.35rem 1.45rem 1.4rem; box-shadow: 0 1px 0 rgba(var(--ink-rgb), 0.04); transition: box-shadow 0.25s, border-color 0.25s, transform 0.14s ease-out; transform-style: preserve-3d; will-change: transform; }
+  .card:hover { border-color: rgba(var(--accent-rgb), 0.5); box-shadow: 7px 7px 0 rgba(var(--accent-rgb), 0.16); }
+  .kicker { font-family: var(--sans); font-size: 0.75rem; letter-spacing: 0.02em; color: var(--muted); margin: 0 0 0.55rem; }
+  .card h3 { margin: 0 0 0.5rem; font-size: 1.25rem; line-height: 1.25; font-weight: 500; }
+  .card p { margin: 0 0 0.6rem; font-size: 1.02rem; line-height: 1.55; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(17.5rem, 1fr)); gap: 1.1rem; }
+  .grid.two { grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr)); }
+  a.card { display: block; text-decoration: none; color: inherit; }
+  a.card .go { display: inline-block; transition: transform 0.3s var(--spring); }
+  a.card:hover .go { transform: translateX(6px); }
+  .num { font-style: italic; color: var(--accent); font-size: 1.25rem; display: inline-block; margin-bottom: 0.4rem; transition: transform 0.35s var(--spring); }
+  .card:hover .num { transform: scale(1.3) rotate(-8deg); }
+
+  /* Tags */
+  .tags { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.9rem; }
+  .tag { font-family: var(--sans); font-size: 0.75rem; line-height: 1.4; padding: 0.16rem 0.5rem; border: 1px solid var(--rule); border-radius: 2px; color: var(--muted); background: var(--paper); cursor: default; transition: transform 0.3s var(--spring), color 0.2s, border-color 0.2s; }
+  .tag:hover { transform: translateY(-3px) rotate(-2deg); color: var(--accent); border-color: var(--accent); }
+  .tag.hot { color: var(--accent); border-color: rgba(var(--accent-rgb), 0.35); }
+
+  /* Work timeline */
+  .timeline { position: relative; padding-left: 1.9rem; }
+  .timeline::before { content: ""; position: absolute; left: 0.35rem; top: 0.6rem; bottom: 0.4rem; width: 1px; background: var(--rule); }
+  .timeline .entry { position: relative; }
+  .timeline .entry::before { content: ""; position: absolute; left: calc(-1.9rem + 0.35rem - 5px); top: 0.55rem; width: 10px; height: 10px; background: var(--paper); border: 2px solid var(--accent); transform: rotate(45deg); transition: transform 0.35s var(--spring), background 0.2s; }
+  .timeline .entry:hover::before { transform: rotate(45deg) scale(1.5); background: var(--accent); }
+  .entry + .entry { margin-top: 2.8rem; }
+  .eh { display: flex; justify-content: space-between; align-items: baseline; gap: 0.3rem 1rem; flex-wrap: wrap; }
+  .eh h3 { margin: 0; font-size: 1.32rem; line-height: 1.3; font-weight: 500; }
+  .eh h3 .where { font-weight: 400; color: var(--muted); font-size: 1.05rem; }
+  .date { font-family: var(--sans); font-size: 0.85rem; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .role { margin: 0.15rem 0 0.6rem; font-style: italic; }
+  .entry p { margin: 0.5rem 0; max-width: 42rem; }
+  .entry ul { margin: 0.6rem 0 0; padding-left: 1.15rem; }
+  .entry li { margin: 0.45rem 0; max-width: 42rem; padding-left: 0.2rem; transition: transform 0.3s var(--smooth); }
+  .entry li:hover { transform: translateX(5px); }
+  .entry li::marker { color: var(--accent); }
+  .aside { color: var(--muted); }
+
+  /* Research */
+  .fig { margin: 0 0 1.2rem; }
+  .fig .card { padding: 1.3rem 1.4rem 1.1rem; }
   .fan { display: block; width: 100%; height: auto; overflow: visible; }
-  .fig figcaption { font-size: 0.92rem; line-height: 1.5; color: var(--muted); margin-top: 0.7rem; max-width: 30rem; }
+  .fig figcaption { font-size: 0.92rem; line-height: 1.5; color: var(--muted); margin-top: 0.6rem; }
   .fig figcaption b { font-weight: 600; color: var(--ink); }
-
   .fan .zone { fill: var(--zone); }
   .fan .axis { stroke: var(--muted); stroke-opacity: 0.45; stroke-width: 1; }
   .fan .b80 { fill: var(--band80); }
@@ -110,149 +230,151 @@
   .fan .note text { font-family: var(--serif); font-style: italic; font-size: 21px; fill: var(--accent); }
   .fan .arrow { fill: none; stroke: var(--accent); stroke-width: 1.3; stroke-linecap: round; stroke-linejoin: round; }
   .fan .tick { font-family: var(--sans); font-size: 15px; fill: var(--muted); }
-
   @media (prefers-reduced-motion: no-preference) {
-    .fan .hist { stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw 1.6s cubic-bezier(0.3, 0.1, 0.2, 1) 0.15s forwards; }
-    .fan .dots, .fan .b80, .fan .b50, .fan .med, .fan .note { opacity: 0; animation: show 0.7s ease forwards; }
-    .fan .dots { animation-delay: 1.2s; }
-    .fan .b80, .fan .b50, .fan .med { animation-delay: 1.65s; }
-    .fan .note { animation-delay: 2.3s; }
+    .js .fan .hist { stroke-dasharray: 1; stroke-dashoffset: 1; }
+    .js .fan .dots, .js .fan .b80, .js .fan .b50, .js .fan .med, .js .fan .note { opacity: 0; }
+    .js .visible .fan .hist { animation: draw 1.6s var(--smooth) 0.35s forwards; }
+    .js .visible .fan .dots { animation: show 0.6s ease 1.4s forwards; }
+    .js .visible .fan .b80, .js .visible .fan .b50, .js .visible .fan .med { animation: show 0.8s ease 1.8s forwards; }
+    .js .visible .fan .note { animation: show 0.6s ease 2.4s forwards; }
   }
   @keyframes draw { to { stroke-dashoffset: 0; } }
   @keyframes show { to { opacity: 1; } }
 
-  /* Sections */
-  .sec { display: grid; grid-template-columns: 10rem minmax(0, 1fr); gap: 2.5rem; padding: 3.2rem 0; border-top: 1px solid var(--rule); }
-  .sec > h2 { margin: 0; font-size: 1.2rem; font-weight: 400; font-style: italic; color: var(--muted); position: sticky; top: 4.8rem; align-self: start; }
+  details.card { height: auto; }
+  details.card + details.card, .reveal + .reveal > details.card { margin-top: 0; }
+  .stack { display: grid; gap: 0.9rem; }
+  details.card summary { cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+  details.card summary::-webkit-details-marker { display: none; }
+  details.card summary h3 { margin: 0; }
+  .chev { width: 1.6rem; height: 1.6rem; flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--rule); border-radius: 50%; font-family: var(--sans); font-size: 0.7rem; color: var(--accent); transition: transform 0.35s var(--spring), border-color 0.2s; }
+  details[open] .chev { transform: rotate(180deg); border-color: var(--accent); }
+  details .inner { padding-top: 0.8rem; }
+  details .inner p { margin: 0 0 0.7rem; }
+  details[open] .inner { animation: unfold 0.45s var(--smooth); }
+  @keyframes unfold { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+  .pubs { margin: 0; padding-left: 1.15rem; }
+  .pubs li { margin: 0.4rem 0; }
 
-  .entry + .entry { margin-top: 2.6rem; }
-  .eh { display: flex; justify-content: space-between; align-items: baseline; gap: 0.3rem 1rem; flex-wrap: wrap; }
-  .eh h3 { margin: 0; font-size: 1.3rem; line-height: 1.3; font-weight: 500; }
-  .eh h3 .where { font-weight: 400; color: var(--muted); font-size: 1.05rem; }
-  .date { font-family: var(--sans); font-size: 0.85rem; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
-  .role { margin: 0.15rem 0 0.7rem; font-style: italic; }
-  .entry p { margin: 0.5rem 0; max-width: 42rem; }
-  .entry ul { margin: 0.6rem 0 0; padding-left: 1.15rem; }
-  .entry li { margin: 0.45rem 0; max-width: 42rem; padding-left: 0.2rem; }
-  .entry li::marker { color: var(--muted); }
-  .tools { font-family: var(--sans); font-size: 0.85rem; line-height: 1.55; color: var(--muted); margin-top: 1rem !important; }
-  .aside { color: var(--muted); }
-  .pubs { margin: 0.6rem 0 0; padding-left: 1.15rem; }
-  .pubs li { margin: 0.45rem 0; max-width: 42rem; }
-
-  .skills { margin: 0; display: grid; grid-template-columns: 8.5rem minmax(0, 1fr); gap: 0.6rem 1.5rem; }
-  .skills dt { font-family: var(--sans); font-size: 0.875rem; color: var(--muted); padding-top: 0.22rem; }
-  .skills dd { margin: 0; max-width: 42rem; }
-
-  .about { display: grid; grid-template-columns: 15rem minmax(0, 1fr); gap: 2.2rem; align-items: start; }
-  .about figure { margin: 0; }
-  .about img { display: block; width: 100%; height: auto; border-radius: 2px; }
-  .about figcaption { font-size: 0.9rem; font-style: italic; color: var(--muted); margin-top: 0.5rem; }
+  /* About */
+  .about { display: grid; grid-template-columns: 16rem minmax(0, 1fr); gap: 2.4rem; align-items: start; }
+  .polaroid { margin: 0; padding: 0.7rem 0.7rem 0.2rem; background: var(--card); border: 1px solid var(--rule); border-radius: 2px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08); transform: rotate(-2deg); transition: transform 0.14s ease-out, box-shadow 0.25s; }
+  .polaroid:hover { box-shadow: 8px 8px 0 rgba(var(--accent-rgb), 0.18); }
+  .polaroid img { display: block; width: 100%; height: auto; }
+  .polaroid figcaption { font-size: 0.9rem; font-style: italic; color: var(--muted); padding: 0.55rem 0.2rem 0.6rem; line-height: 1.4; }
   .about p { margin: 0 0 0.9rem; max-width: 38rem; }
+  .hobbies { margin-top: 1.1rem; }
+  .hobbies .tag { font-size: 0.82rem; padding: 0.28rem 0.65rem; }
 
-  .mail { font-size: clamp(1.45rem, 3.4vw, 2.1rem); line-height: 1.25; margin: 0 0 1rem; overflow-wrap: anywhere; }
+  /* Contact */
+  .mail { display: inline-block; font-size: clamp(1.5rem, 3.6vw, 2.25rem); line-height: 1.25; margin: 0 0 1.1rem; overflow-wrap: anywhere; transition: transform 0.35s var(--spring); }
+  .mail:hover { transform: scale(1.04) rotate(-1deg); }
   .contact p { max-width: 38rem; }
+  .contact .cta { margin-top: 1.4rem; }
 
   footer { border-top: 1px solid var(--rule); }
   footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.4rem 1.5rem; padding-top: 1.5rem; padding-bottom: 2.5rem; font-family: var(--sans); font-size: 0.82rem; color: var(--muted); }
 
-  @media (max-width: 860px) {
-    .intro { grid-template-columns: 1fr; gap: 2.4rem; padding-top: 3rem; }
-    .fig { max-width: 34rem; }
+  @media (max-width: 980px) {
+    .top nav a { padding: 0.32rem 0.45rem; font-size: 0.82rem; }
   }
   @media (max-width: 760px) {
-    .sec { grid-template-columns: 1fr; gap: 1.1rem; padding: 2.4rem 0; }
+    .sec { grid-template-columns: 1fr; gap: 1.2rem; padding: 2.6rem 0; }
     .sec > h2 { position: static; }
     .about { grid-template-columns: 1fr; }
-    .about figure { max-width: 18rem; }
+    .about .photo-wrap { max-width: 17rem; }
+    .scroll-cue { display: none; }
   }
-  @media (max-width: 720px) {
-    html { scroll-padding-top: 6.2rem; }
-    .wrap { padding: 0 1rem; }
+  @media (max-width: 820px) {
+    html { scroll-padding-top: 6.4rem; }
     .top .wrap { flex-wrap: wrap; gap: 0.2rem 1rem; padding-top: 0.55rem; padding-bottom: 0.4rem; }
     .top .cv-m { display: inline-block; }
     .top nav .cv { display: none; }
     .top nav { order: 3; flex-basis: calc(100% + 0.6rem); margin-left: -0.6rem; overflow-x: auto; scrollbar-width: none; -webkit-mask-image: linear-gradient(to right, #000 85%, transparent); mask-image: linear-gradient(to right, #000 85%, transparent); }
     .top nav::-webkit-scrollbar { display: none; }
-    .lede { font-size: 1.3rem; }
   }
-  @media (max-width: 480px) {
-    .skills { grid-template-columns: 1fr; gap: 0.1rem; }
-    .skills dt { padding-top: 0.7rem; }
+  @media (max-width: 720px) {
+    .wrap { padding: 0 1rem; }
+    .hero { min-height: calc(100vh - 6rem); min-height: calc(100svh - 6rem); }
+    .hero-sub { font-size: 1.1rem; }
+    .cta .minor { margin-left: 0; width: 100%; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+    .js .reveal { opacity: 1; transform: none; filter: none; }
+    .js .hero:not(.in) h1 .line > span { transform: none; }
+    .js .mark path { stroke-dashoffset: 0; }
   }
   @media print {
-    .top { position: static; }
-    .top nav, .skip { display: none; }
-    .sec > h2 { position: static; }
+    #progress, #scope, .top nav, .skip, .scroll-cue { display: none; }
+    .top, .sec > h2 { position: static; }
+    .hero { min-height: 0; }
   }
 </style>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
+<div id="progress" aria-hidden="true"></div>
 
 <header class="top">
   <div class="wrap">
-    <a class="name" href="#top">Hemant Parakh</a>
+    <a class="brand" id="brand" href="#top">
+      <svg class="mono" viewBox="0 0 40 40" aria-hidden="true"><rect x="1.5" y="1.5" width="37" height="37" rx="3" fill="none" stroke="currentColor" stroke-width="1.5"/><text x="20" y="26.5" text-anchor="middle" font-family="Newsreader, Georgia, serif" font-size="18" fill="currentColor">HP</text></svg>
+      <span>Hemant Parakh</span>
+    </a>
     <nav aria-label="Sections">
       <a href="#work">Work</a>
       <a href="#projects">Projects</a>
       <a href="#research">Research</a>
       <a href="#education">Education</a>
+      <a href="#skills">Skills</a>
       <a href="#about">About</a>
       <a href="#contact">Contact</a>
+      <a class="gh" href="https://github.com/Hemant-Parakh" rel="noopener" aria-label="GitHub">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.37.5 0 5.87 0 12.5c0 5.3 3.44 9.8 8.21 11.39.6.11.82-.26.82-.58l-.01-2.05c-3.34.73-4.04-1.61-4.04-1.61-.55-1.39-1.33-1.76-1.33-1.76-1.09-.74.08-.73.08-.73 1.2.09 1.84 1.24 1.84 1.24 1.07 1.83 2.81 1.3 3.5.99.11-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.12-.3-.54-1.52.12-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.29-1.55 3.3-1.23 3.3-1.23.66 1.66.24 2.88.12 3.18.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.63-5.49 5.92.43.37.81 1.1.81 2.22l-.01 3.29c0 .32.22.7.83.58A12.01 12.01 0 0 0 24 12.5C24 5.87 18.63.5 12 .5z"/></svg>
+      </a>
       <a class="cv" href="Hemant_Parakh_CV.pdf" download>CV</a>
     </nav>
     <a class="cv cv-m" href="Hemant_Parakh_CV.pdf" download>CV</a>
   </div>
 </header>
 
+<section class="hero" id="top">
+  <canvas id="scope" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <p class="status reveal"><span class="dot"></span>Open to full-time data science roles · Hamburg · probably mid-backtest right now</p>
+    <h1>
+      <span class="line"><span>Hi, I'm <span class="nowrap">Hemant <span class="wave" aria-hidden="true">👋</span></span></span></span>
+      <span class="line"><span>I <span class="mark">forecast<svg viewBox="0 0 200 20" aria-hidden="true"><path pathLength="1" d="M3 13 C 38 5, 72 17, 106 10 S 168 5, 197 11"/></svg></span> things</span></span>
+      <span class="line"><span>for a living.</span></span>
+    </h1>
+    <p class="hero-sub reveal d2">Data scientist at Hapag-Lloyd and M.Sc. student at TU Hamburg, graduating December 2026. Most weeks I predict container demand and freight rates a week to a month ahead, then explain to the people who set prices why the model thinks what it thinks. The second part is usually harder.</p>
+    <div class="cta reveal d3">
+      <a class="btn btn-primary" href="#projects" data-magnet>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        See my work
+      </a>
+      <a class="btn btn-ghost" href="Hemant_Parakh_CV.pdf" download data-magnet>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download CV
+      </a>
+      <span class="minor">
+        <a href="mailto:hemantparakh93@gmail.com">Email</a>
+        <a href="https://www.linkedin.com/in/hemant-parakh" rel="noopener">LinkedIn</a>
+        <a href="https://github.com/Hemant-Parakh" rel="noopener">GitHub</a>
+      </span>
+    </div>
+  </div>
+  <div class="scroll-cue" aria-hidden="true"><span>scroll, there's more</span></div>
+</section>
+
 <main id="main">
   <div class="wrap">
 
-    <section class="intro" id="top">
-      <div>
-        <h1>Hemant Parakh</h1>
-        <p class="lede">Data scientist in Hamburg, mostly forecasting.</p>
-        <p>I build forecasting models and LLM tools at Hapag-Lloyd, one of the world's five largest container lines, and I'm finishing an M.Sc. in Data Science at TU Hamburg in December 2026.</p>
-        <p>A normal week means predicting container demand and freight rates a week to a month ahead, then explaining to the people who set prices why the model thinks what it thinks. The second part is usually harder.</p>
-        <p>I'm looking for a full-time role in data science or applied machine learning.</p>
-        <p class="links">
-          <a href="mailto:hemantparakh93@gmail.com">Email</a>
-          <a href="https://www.linkedin.com/in/hemant-parakh" rel="noopener">LinkedIn</a>
-          <a href="https://github.com/Hemant-Parakh" rel="noopener">GitHub</a>
-          <a href="Hemant_Parakh_CV.pdf" download>CV (PDF, one page)</a>
-        </p>
-      </div>
-
-      <figure class="fig">
-        <svg class="fan" viewBox="0 0 560 300" role="img" aria-labelledby="fig1-title">
-          <title id="fig1-title">Illustrative chart: 18 weeks of weekly volume and a four-week forecast with a widening uncertainty band</title>
-          <rect class="zone" x="444.7" y="12" width="109.3" height="234"/>
-          <line class="axis" x1="14" y1="246" x2="554" y2="246"/>
-          <path class="b80" d="M444.7,138.9 L470.0,136.0 L495.3,142.6 L520.7,145.5 L546.0,142.0 L546.0,231.0 L520.7,222.6 L495.3,205.6 L470.0,180.5 L444.7,138.9 Z"/>
-          <path class="b50" d="M444.7,138.9 L470.0,146.6 L495.3,157.5 L520.7,163.8 L546.0,163.1 L546.0,209.9 L520.7,204.4 L495.3,190.7 L470.0,170.0 L444.7,138.9 Z"/>
-          <polyline class="med" points="444.7,138.9 470.0,158.3 495.3,174.1 520.7,184.1 546.0,186.5"/>
-          <line class="today" x1="444.7" y1="12" x2="444.7" y2="246"/>
-          <path class="hist" pathLength="1" d="M14.0,171.9 L39.3,150.8 L64.7,136.6 L90.0,156.2 L115.3,184.3 L140.7,190.1 L166.0,192.4 L191.3,188.3 L216.7,213.3 L242.0,218.9 L267.3,186.5 L292.7,164.1 L318.0,131.2 L343.3,117.2 L368.7,122.8 L394.0,130.6 L419.3,105.3 L444.7,138.9"/>
-          <g class="dots"><circle cx="14.0" cy="171.9" r="2.3"/><circle cx="39.3" cy="150.8" r="2.3"/><circle cx="64.7" cy="136.6" r="2.3"/><circle cx="90.0" cy="156.2" r="2.3"/><circle cx="115.3" cy="184.3" r="2.3"/><circle cx="140.7" cy="190.1" r="2.3"/><circle cx="166.0" cy="192.4" r="2.3"/><circle cx="191.3" cy="188.3" r="2.3"/><circle cx="216.7" cy="213.3" r="2.3"/><circle cx="242.0" cy="218.9" r="2.3"/><circle cx="267.3" cy="186.5" r="2.3"/><circle cx="292.7" cy="164.1" r="2.3"/><circle cx="318.0" cy="131.2" r="2.3"/><circle cx="343.3" cy="117.2" r="2.3"/><circle cx="368.7" cy="122.8" r="2.3"/><circle cx="394.0" cy="130.6" r="2.3"/><circle cx="419.3" cy="105.3" r="2.3"/><circle cx="444.7" cy="138.9" r="2.3"/></g>
-          <g class="note">
-            <text x="428.7" y="42.0" text-anchor="end">the bit everyone</text>
-            <text x="428.7" y="66.0" text-anchor="end">wants to argue about</text>
-            <path class="arrow" d="M434.7,39.0 Q474.7,30.0 505.5,140.5"/>
-            <path class="arrow" d="M498.5,134.5 L505.5,140.5 L507.5,131.5"/>
-          </g>
-          <text class="tick" x="14" y="272">four months ago</text>
-          <text class="tick" x="444.7" y="272" text-anchor="middle">this week</text>
-          <text class="tick" x="554" y="272" text-anchor="end">+4 wk</text>
-        </svg>
-        <figcaption><b>Fig. 1.</b> Weekly container volume and a four-week forecast, with 50% and 80% intervals. The numbers are made up. The real ones belong to my employer.</figcaption>
-      </figure>
-    </section>
-
     <section class="sec" id="work">
-      <h2>Work</h2>
-      <div>
-        <article class="entry">
+      <h2 class="reveal">Work</h2>
+      <div class="timeline">
+        <article class="entry reveal from-left">
           <div class="eh">
             <h3>Hapag-Lloyd AG <span class="where">Hamburg</span></h3>
             <span class="date">Sep 2024 to present</span>
@@ -266,10 +388,12 @@
             <li>The production Databricks pipeline, end to end: requirements with the Trade Management team, then design, build and deployment. Moving LLM inference to Model Serving endpoints removed a cold start and cut load time by about 90%.</li>
             <li>SQL and Python pipelines (Snowflake, dbt, PySpark) over three external APIs, plus Selenium automation for internal systems, feeding Qlik Sense dashboards that replaced manual reporting cycles.</li>
           </ul>
-          <p class="tools">Python, SQL, PySpark, Databricks, MLflow, Snowflake, dbt, Streamlit, Qlik Sense, Selenium, Claude and OpenAI APIs, Git</p>
+          <div class="tags">
+            <span class="tag hot">Python</span><span class="tag hot">Databricks</span><span class="tag hot">Claude &amp; OpenAI APIs</span><span class="tag">SQL</span><span class="tag">PySpark</span><span class="tag">MLflow</span><span class="tag">Snowflake</span><span class="tag">dbt</span><span class="tag">Streamlit</span><span class="tag">Qlik Sense</span><span class="tag">Selenium</span>
+          </div>
         </article>
 
-        <article class="entry">
+        <article class="entry reveal from-left d1">
           <div class="eh">
             <h3>Gourav Mardia &amp; Co <span class="where">Mumbai</span></h3>
             <span class="date">Mar 2023 to Oct 2023</span>
@@ -281,7 +405,7 @@
           </ul>
         </article>
 
-        <article class="entry">
+        <article class="entry reveal from-left d2">
           <div class="eh">
             <h3>APSIT Skills <span class="where">Thane</span></h3>
             <span class="date">Jun 2020 to Aug 2021</span>
@@ -297,133 +421,214 @@
     </section>
 
     <section class="sec" id="projects">
-      <h2>Projects</h2>
-      <div>
-        <article class="entry">
-          <div class="eh">
-            <h3>Diego <span class="where">AI Beavers Hackathon, Hamburg</span></h3>
-            <span class="date">Jun 2026</span>
-          </div>
-          <p>A voice AI you can rehearse difficult workplace conversations with. Its emotional state shifts as the conversation goes. I built the real-time voice pipeline with ElevenLabs.</p>
-        </article>
-
-        <article class="entry">
-          <div class="eh">
+      <h2 class="reveal">Projects</h2>
+      <div class="grid">
+        <div class="reveal tilt">
+          <article class="card" data-tilt>
+            <p class="kicker">Hapag-Lloyd · in production</p>
+            <h3>LLM trade-brief system</h3>
+            <p>Started as a manager's informal idea for the Americas Latin segment. Claude and OpenAI models read across 11 SQL tables, with prompt caching, and write a structured volume-opportunity briefing. Two to three days of analysis now takes under an hour.</p>
+            <div class="tags"><span class="tag hot">LLM agents</span><span class="tag hot">prompt caching</span><span class="tag">SQL</span><span class="tag">Databricks</span></div>
+          </article>
+        </div>
+        <div class="reveal tilt d1">
+          <article class="card" data-tilt>
+            <p class="kicker">Hapag-Lloyd · in production</p>
+            <h3>Demand and freight-rate forecasts</h3>
+            <p>Forecasts 7, 14 and 30 days out across trade lanes, mixing internal volume data with macro, FX and port-event signals, checked with walk-forward backtests. A Streamlit what-if app lets colleagues run their own scenarios.</p>
+            <div class="tags"><span class="tag hot">time series</span><span class="tag">statsmodels</span><span class="tag">scikit-learn</span><span class="tag">Streamlit</span></div>
+          </article>
+        </div>
+        <div class="reveal tilt d2">
+          <article class="card" data-tilt>
+            <p class="kicker">AI Beavers Hackathon, Hamburg · Jun 2026</p>
+            <h3>Diego</h3>
+            <p>A voice AI you can rehearse difficult workplace conversations with. Its emotional state shifts as the conversation goes. I built the real-time voice pipeline with ElevenLabs.</p>
+            <div class="tags"><span class="tag hot">ElevenLabs</span><span class="tag hot">voice AI</span><span class="tag">real-time</span></div>
+          </article>
+        </div>
+        <div class="reveal tilt">
+          <article class="card" data-tilt>
+            <p class="kicker">Side project · 2025</p>
             <h3>Cityblock</h3>
-            <span class="date">2025</span>
-          </div>
-          <p>An animated cross-section of a city block that changes with live weather data. I built the front end on my own.</p>
-        </article>
-
-        <article class="entry">
-          <div class="eh">
+            <p>An animated cross-section of a city block that changes with live weather data. I built the front end on my own.</p>
+            <div class="tags"><span class="tag hot">data viz</span><span class="tag">JavaScript</span><span class="tag">weather API</span></div>
+          </article>
+        </div>
+        <div class="reveal tilt d1">
+          <article class="card" data-tilt>
+            <p class="kicker">Bachelor's project · 2022</p>
             <h3>Student attentiveness detection</h3>
-            <span class="date">2022</span>
-          </div>
-          <p>My bachelor's project: a real-time model that reads facial expressions and body language to estimate how attentive a class is, built into an education platform.</p>
-        </article>
-
-        <p class="aside" style="margin-top:2.2rem">Smaller side projects live on <a href="https://github.com/Hemant-Parakh" rel="noopener">GitHub</a>.</p>
+            <p>A real-time model that reads facial expressions and body language to estimate how attentive a class is, built into an education platform.</p>
+            <div class="tags"><span class="tag hot">computer vision</span><span class="tag">deep learning</span><span class="tag">Python</span></div>
+          </article>
+        </div>
+        <div class="reveal tilt d2">
+          <a class="card" href="https://github.com/Hemant-Parakh" rel="noopener" data-tilt>
+            <p class="kicker">And the rest</p>
+            <h3>More on GitHub <span class="go">→</span></h3>
+            <p>Smaller side projects and experiments that didn't make this page.</p>
+          </a>
+        </div>
       </div>
     </section>
 
     <section class="sec" id="research">
-      <h2>Research</h2>
+      <h2 class="reveal">Research</h2>
       <div>
-        <article class="entry">
-          <div class="eh">
-            <h3>Master's thesis <span class="where">with Hapag-Lloyd AG</span></h3>
-            <span class="date">Jun 2026 to Dec 2026</span>
-          </div>
-          <p class="role">Data-Driven Decision Support for Forecasting and Driver Analysis in Maritime Trade</p>
-          <p>Supervised by Prof. Dr. Martin Kliesch at TU Hamburg. The question is whether outside information (macroeconomic indicators, peer companies' share prices, sentiment from maritime news headlines) really improves a carrier's own demand forecast four weeks out, and which drivers stay useful over time instead of looking good in one lucky period.</p>
-          <p>The models range from "same as last week" baselines to gradient boosting, all tested with walk-forward validation, with SHAP values for the driver analysis. Every experiment was written down before any of them ran. The data starts in 2020, so it has been through a pandemic, a boom, a bust and the Red Sea crisis.</p>
-        </article>
+        <div class="reveal flip">
+          <figure class="fig">
+            <div class="card">
+              <svg class="fan" viewBox="0 0 560 300" role="img" aria-labelledby="fig1-title">
+                <title id="fig1-title">Illustrative chart: 18 weeks of weekly volume and a four-week forecast with a widening uncertainty band</title>
+                <rect class="zone" x="444.7" y="12" width="109.3" height="234"/>
+                <line class="axis" x1="14" y1="246" x2="554" y2="246"/>
+                <path class="b80" d="M444.7,138.9 L470.0,136.0 L495.3,142.6 L520.7,145.5 L546.0,142.0 L546.0,231.0 L520.7,222.6 L495.3,205.6 L470.0,180.5 L444.7,138.9 Z"/>
+                <path class="b50" d="M444.7,138.9 L470.0,146.6 L495.3,157.5 L520.7,163.8 L546.0,163.1 L546.0,209.9 L520.7,204.4 L495.3,190.7 L470.0,170.0 L444.7,138.9 Z"/>
+                <polyline class="med" points="444.7,138.9 470.0,158.3 495.3,174.1 520.7,184.1 546.0,186.5"/>
+                <line class="today" x1="444.7" y1="12" x2="444.7" y2="246"/>
+                <path class="hist" pathLength="1" d="M14.0,171.9 L39.3,150.8 L64.7,136.6 L90.0,156.2 L115.3,184.3 L140.7,190.1 L166.0,192.4 L191.3,188.3 L216.7,213.3 L242.0,218.9 L267.3,186.5 L292.7,164.1 L318.0,131.2 L343.3,117.2 L368.7,122.8 L394.0,130.6 L419.3,105.3 L444.7,138.9"/>
+                <g class="dots"><circle cx="14.0" cy="171.9" r="2.3"/><circle cx="39.3" cy="150.8" r="2.3"/><circle cx="64.7" cy="136.6" r="2.3"/><circle cx="90.0" cy="156.2" r="2.3"/><circle cx="115.3" cy="184.3" r="2.3"/><circle cx="140.7" cy="190.1" r="2.3"/><circle cx="166.0" cy="192.4" r="2.3"/><circle cx="191.3" cy="188.3" r="2.3"/><circle cx="216.7" cy="213.3" r="2.3"/><circle cx="242.0" cy="218.9" r="2.3"/><circle cx="267.3" cy="186.5" r="2.3"/><circle cx="292.7" cy="164.1" r="2.3"/><circle cx="318.0" cy="131.2" r="2.3"/><circle cx="343.3" cy="117.2" r="2.3"/><circle cx="368.7" cy="122.8" r="2.3"/><circle cx="394.0" cy="130.6" r="2.3"/><circle cx="419.3" cy="105.3" r="2.3"/><circle cx="444.7" cy="138.9" r="2.3"/></g>
+                <g class="note">
+                  <text x="428.7" y="42.0" text-anchor="end">the bit everyone</text>
+                  <text x="428.7" y="66.0" text-anchor="end">wants to argue about</text>
+                  <path class="arrow" d="M434.7,39.0 Q474.7,30.0 505.5,140.5"/>
+                  <path class="arrow" d="M498.5,134.5 L505.5,140.5 L507.5,131.5"/>
+                </g>
+                <text class="tick" x="14" y="272">four months ago</text>
+                <text class="tick" x="444.7" y="272" text-anchor="middle">this week</text>
+                <text class="tick" x="554" y="272" text-anchor="end">+4 wk</text>
+              </svg>
+              <figcaption><b>Fig. 1.</b> Weekly container volume and a four-week forecast, with 50% and 80% intervals, which is roughly what my thesis is about. The numbers are made up. The real ones belong to my employer.</figcaption>
+            </div>
+          </figure>
+        </div>
 
-        <article class="entry">
-          <div class="eh">
-            <h3>Systematic literature review <span class="where">TU Hamburg</span></h3>
-            <span class="date">Jun 2025 to Oct 2025</span>
+        <div class="stack">
+          <div class="reveal d1">
+            <details class="card" open>
+              <summary><h3>Master's thesis, with Hapag-Lloyd AG</h3><span class="chev" aria-hidden="true">▾</span></summary>
+              <div class="inner">
+                <p class="kicker">Jun 2026 to Dec 2026 · supervised by Prof. Dr. Martin Kliesch, TU Hamburg</p>
+                <p><i>Data-Driven Decision Support for Forecasting and Driver Analysis in Maritime Trade.</i> The question is whether outside information (macroeconomic indicators, peer companies' share prices, sentiment from maritime news headlines) really improves a carrier's own demand forecast four weeks out, and which drivers stay useful over time instead of looking good in one lucky period.</p>
+                <p>The models range from "same as last week" baselines to gradient boosting, all tested with walk-forward validation, with SHAP values for the driver analysis. Every experiment was written down before any of them ran. The data starts in 2020, so it has been through a pandemic, a boom, a bust and the Red Sea crisis.</p>
+                <div class="tags"><span class="tag hot">walk-forward validation</span><span class="tag hot">SHAP</span><span class="tag">gradient boosting</span><span class="tag">news sentiment</span></div>
+              </div>
+            </details>
           </div>
-          <p class="role">Consumer Perception of AI-Based Software: Trust and Interface Design</p>
-          <p>A single-author review following PRISMA 2020. I screened 124 records down to 17 studies, sorted the findings into trust factors that depend on the task and design cues that depend on the interface, and rated each study's evidence on a five-part rubric.</p>
-        </article>
-
-        <article class="entry">
-          <div class="eh">
-            <h3>Publications</h3>
+          <div class="reveal d2">
+            <details class="card">
+              <summary><h3>Systematic literature review</h3><span class="chev" aria-hidden="true">▾</span></summary>
+              <div class="inner">
+                <p class="kicker">TU Hamburg · Jun 2025 to Oct 2025</p>
+                <p><i>Consumer Perception of AI-Based Software: Trust and Interface Design.</i> A single-author review following PRISMA 2020. I screened 124 records down to 17 studies, sorted the findings into trust factors that depend on the task and design cues that depend on the interface, and rated each study's evidence on a five-part rubric.</p>
+              </div>
+            </details>
           </div>
-          <ul class="pubs">
-            <li>Motion Detection using Background Subtraction Techniques. <i>International Engineering Journal for Research and Development</i>, January 2023.</li>
-            <li>Comparative Analysis of Classification Models for Indic Languages. Conference paper, October 2022.</li>
-          </ul>
-        </article>
+          <div class="reveal d3">
+            <details class="card">
+              <summary><h3>Publications</h3><span class="chev" aria-hidden="true">▾</span></summary>
+              <div class="inner">
+                <ul class="pubs">
+                  <li>Motion Detection using Background Subtraction Techniques. <i>International Engineering Journal for Research and Development</i>, January 2023.</li>
+                  <li>Comparative Analysis of Classification Models for Indic Languages. Conference paper, October 2022.</li>
+                </ul>
+              </div>
+            </details>
+          </div>
+        </div>
       </div>
     </section>
 
     <section class="sec" id="education">
-      <h2>Education</h2>
-      <div>
-        <article class="entry">
-          <div class="eh">
-            <h3>Technische Universität Hamburg <span class="where">Hamburg</span></h3>
-            <span class="date">Oct 2023 to Dec 2026</span>
-          </div>
-          <p class="role">M.Sc. Data Science</p>
-          <p>Coursework in mathematics, machine learning, artificial intelligence, big data analytics, data visualisation and causal data science. The thesis is described above.</p>
-        </article>
-
-        <article class="entry">
-          <div class="eh">
-            <h3>A.P. Shah Institute of Technology <span class="where">Thane</span></h3>
-            <span class="date">2019 to 2023</span>
-          </div>
-          <p class="role">B.E. Computer Engineering</p>
-          <p>CGPA 8.86 out of 10 (German equivalent 1.5). Coursework included cyber security and blockchain alongside the core computer engineering subjects.</p>
-        </article>
+      <h2 class="reveal">Education</h2>
+      <div class="grid two">
+        <div class="reveal pop">
+          <article class="card" data-tilt>
+            <p class="kicker">Oct 2023 to Dec 2026 · Hamburg</p>
+            <h3>M.Sc. Data Science</h3>
+            <p class="role">Technische Universität Hamburg</p>
+            <p>Coursework in mathematics, machine learning, artificial intelligence, big data analytics, data visualisation and causal data science. Thesis with Hapag-Lloyd, described above.</p>
+            <div class="tags"><span class="tag hot">machine learning</span><span class="tag hot">causal data science</span><span class="tag">big data</span><span class="tag">data visualisation</span></div>
+          </article>
+        </div>
+        <div class="reveal pop d1">
+          <article class="card" data-tilt>
+            <p class="kicker">2019 to 2023 · Thane</p>
+            <h3>B.E. Computer Engineering</h3>
+            <p class="role">A.P. Shah Institute of Technology</p>
+            <p>CGPA 8.86 out of 10 (German equivalent 1.5). Coursework included cyber security and blockchain alongside the core computer engineering subjects.</p>
+            <div class="tags"><span class="tag hot">computer engineering</span><span class="tag">cyber security</span><span class="tag">blockchain</span></div>
+          </article>
+        </div>
       </div>
     </section>
 
     <section class="sec" id="skills">
-      <h2>Skills</h2>
-      <dl class="skills">
-        <dt>Forecasting</dt>
-        <dd>Time-series forecasting (SARIMA, Prophet, gradient boosting), panel regression, walk-forward validation, SHAP, causal inference</dd>
-        <dt>LLMs</dt>
-        <dd>Claude and OpenAI APIs, prompt engineering and caching, multi-agent pipelines, RAG, MCP</dd>
-        <dt>Data</dt>
-        <dd>Python, SQL, PySpark, Databricks (Apps, Model Serving), MLflow, Snowflake, dbt, AWS Lambda</dd>
-        <dt>Reporting</dt>
-        <dd>Qlik Sense, QlikView, Power BI, Tableau, Streamlit, Plotly</dd>
-        <dt>Business</dt>
-        <dd>Stakeholder management, requirements engineering, KPI reporting, maritime trade and yield management</dd>
-        <dt>Certificates</dt>
-        <dd>Power BI, Tableau, AWS Academy Cloud Foundations, JNCIA-Cloud (Juniper)</dd>
-        <dt>Languages</dt>
-        <dd>English (C1), Hindi (C2), German (B1)</dd>
-      </dl>
+      <h2 class="reveal">Skills</h2>
+      <div class="grid">
+        <div class="reveal pop"><div class="card" data-tilt><p class="kicker">Forecasting &amp; ML</p><div class="tags"><span class="tag hot">time-series forecasting</span><span class="tag">SARIMA</span><span class="tag">Prophet</span><span class="tag">gradient boosting</span><span class="tag">panel regression</span><span class="tag hot">walk-forward validation</span><span class="tag">SHAP</span><span class="tag">causal inference</span></div></div></div>
+        <div class="reveal pop d1"><div class="card" data-tilt><p class="kicker">LLMs &amp; GenAI</p><div class="tags"><span class="tag hot">Claude API</span><span class="tag hot">OpenAI API</span><span class="tag">prompt caching</span><span class="tag">multi-agent pipelines</span><span class="tag">RAG</span><span class="tag">MCP</span></div></div></div>
+        <div class="reveal pop d2"><div class="card" data-tilt><p class="kicker">Data &amp; platforms</p><div class="tags"><span class="tag hot">Python</span><span class="tag hot">SQL</span><span class="tag">PySpark</span><span class="tag hot">Databricks</span><span class="tag">MLflow</span><span class="tag">Snowflake</span><span class="tag">dbt</span><span class="tag">AWS Lambda</span></div></div></div>
+        <div class="reveal pop"><div class="card" data-tilt><p class="kicker">Reporting</p><div class="tags"><span class="tag hot">Qlik Sense</span><span class="tag">QlikView</span><span class="tag">Power BI</span><span class="tag">Tableau</span><span class="tag">Streamlit</span><span class="tag">Plotly</span></div></div></div>
+        <div class="reveal pop d1"><div class="card" data-tilt><p class="kicker">Business</p><div class="tags"><span class="tag">stakeholder management</span><span class="tag">requirements engineering</span><span class="tag">KPI reporting</span><span class="tag hot">yield management</span><span class="tag">maritime trade</span></div></div></div>
+        <div class="reveal pop d2"><div class="card" data-tilt><p class="kicker">Languages &amp; certificates</p><div class="tags"><span class="tag hot">English C1</span><span class="tag hot">Hindi C2</span><span class="tag hot">German B1</span><span class="tag">Power BI</span><span class="tag">Tableau</span><span class="tag">AWS Cloud Foundations</span><span class="tag">JNCIA-Cloud</span></div></div></div>
+      </div>
+    </section>
+
+    <section class="sec" id="why">
+      <h2 class="reveal">What I bring</h2>
+      <div class="grid">
+        <div class="reveal tilt"><article class="card" data-tilt><span class="num">i.</span><h3>Production, not just notebooks</h3><p>My forecasts and LLM tools run in production and get used by commercial teams. I've done the boring, critical last mile too: requirements, deployment, and cutting a load time by about 90%.</p></article></div>
+        <div class="reveal tilt d1"><article class="card" data-tilt><span class="num">ii.</span><h3>Interpretable by default</h3><p>Walk-forward validation instead of tidy random splits, and SHAP to show what drives a forecast. If a model can't explain itself, it doesn't get to make decisions.</p></article></div>
+        <div class="reveal tilt d2"><article class="card" data-tilt><span class="num">iii.</span><h3>Fluent in both languages</h3><p>Python, and "so what does this mean for Q3?". I turn commercial questions into analytical products and present them to people with better things to do than read a confusion matrix.</p></article></div>
+        <div class="reveal tilt d3"><article class="card" data-tilt><span class="num">iv.</span><h3>Already here</h3><p>Two years inside a German company, German at B1, and already living in Hamburg. No settling-in period, and I have survived a few Hamburg winters.</p></article></div>
+      </div>
     </section>
 
     <section class="sec" id="about">
-      <h2>About</h2>
+      <h2 class="reveal">About</h2>
       <div class="about">
-        <figure>
-          <img src="hemant.jpg" width="960" height="1195" loading="lazy" alt="Hemant in a pink shirt and sunglasses, with a hillside town and the sea behind him.">
-          <figcaption>Off the clock, somewhere with better weather than Hamburg.</figcaption>
-        </figure>
-        <div>
+        <div class="photo-wrap reveal from-left">
+          <figure class="polaroid" data-tilt="rotate(-2deg)">
+            <img src="hemant.jpg" width="960" height="1195" loading="lazy" alt="Hemant in a pink shirt and sunglasses, with a hillside town and the sea behind him.">
+            <figcaption>Off the clock, somewhere with better weather than Hamburg.</figcaption>
+          </figure>
+        </div>
+        <div class="reveal from-right d1">
           <p>I studied computer engineering in Thane, near Mumbai, and moved to Hamburg for my master's in 2023.</p>
           <p>At work I care about three things: models people actually use, validation that matches how the model will be used (for a time series, never a random split), and explanations a pricing manager can follow without a statistics degree.</p>
           <p>Outside work I cook, hike, travel, read, play video games, watch anime and keep starting side projects. Hackathons are where those side projects finally get deadlines.</p>
+          <div class="tags hobbies">
+            <span class="tag">cooking</span><span class="tag">hiking</span><span class="tag">travelling</span><span class="tag">reading</span><span class="tag">video games</span><span class="tag">anime</span><span class="tag">hackathons</span><span class="tag">side projects</span>
+          </div>
         </div>
       </div>
     </section>
 
     <section class="sec contact" id="contact">
-      <h2>Contact</h2>
-      <div>
-        <p class="mail"><a href="mailto:hemantparakh93@gmail.com">hemantparakh93@gmail.com</a></p>
-        <p>Email is the quickest way to reach me. I'm also on <a href="https://www.linkedin.com/in/hemant-parakh" rel="noopener">LinkedIn</a> and <a href="https://github.com/Hemant-Parakh" rel="noopener">GitHub</a>, and my CV is a <a href="Hemant_Parakh_CV.pdf" download>one-page PDF</a>. If you're hiring for forecasting or applied ML, I'd like to hear about it.</p>
+      <h2 class="reveal">Contact</h2>
+      <div class="reveal pop">
+        <a class="mail" href="mailto:hemantparakh93@gmail.com">hemantparakh93@gmail.com</a>
+        <p>Email is the quickest way to reach me. If you're hiring for forecasting or applied ML, or you just want to argue about model interpretability, I'd like to hear from you.</p>
+        <div class="cta">
+          <a class="btn btn-primary" href="mailto:hemantparakh93@gmail.com" data-magnet>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            Email
+          </a>
+          <a class="btn btn-ghost" href="https://www.linkedin.com/in/hemant-parakh" rel="noopener" data-magnet>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+            LinkedIn
+          </a>
+          <a class="btn btn-ghost" href="https://github.com/Hemant-Parakh" rel="noopener" data-magnet>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.37.5 0 5.87 0 12.5c0 5.3 3.44 9.8 8.21 11.39.6.11.82-.26.82-.58l-.01-2.05c-3.34.73-4.04-1.61-4.04-1.61-.55-1.39-1.33-1.76-1.33-1.76-1.09-.74.08-.73.08-.73 1.2.09 1.84 1.24 1.84 1.24 1.07 1.83 2.81 1.3 3.5.99.11-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.12-.3-.54-1.52.12-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.29-1.55 3.3-1.23 3.3-1.23.66 1.66.24 2.88.12 3.18.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.63-5.49 5.92.43.37.81 1.1.81 2.22l-.01 3.29c0 .32.22.7.83.58A12.01 12.01 0 0 0 24 12.5C24 5.87 18.63.5 12 .5z"/></svg>
+            GitHub
+          </a>
+          <a class="btn btn-ghost" href="Hemant_Parakh_CV.pdf" download data-magnet>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            CV (PDF)
+          </a>
+        </div>
       </div>
     </section>
 
@@ -432,9 +637,221 @@
 
 <footer>
   <div class="wrap">
-    <span>Hemant Parakh, Hamburg</span>
+    <span>Hemant Parakh, Hamburg · <a href="#top">back to the top</a></span>
     <span>Set in Newsreader. Hosted on GitHub Pages. Last updated November 2026.</span>
   </div>
 </footer>
+
+<script>
+(function () {
+  var root = document.documentElement;
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+  // Scroll progress bar
+  var bar = document.getElementById('progress');
+  var ticking = false;
+  function updateBar() {
+    var max = root.scrollHeight - root.clientHeight;
+    bar.style.transform = 'scaleX(' + (max > 0 ? root.scrollTop / max : 0) + ')';
+    ticking = false;
+  }
+  window.addEventListener('scroll', function () {
+    if (!ticking) { requestAnimationFrame(updateBar); ticking = true; }
+  }, { passive: true });
+  updateBar();
+
+  // Monogram spins when clicked
+  var brand = document.getElementById('brand');
+  brand.addEventListener('click', function () {
+    brand.classList.remove('spin');
+    void brand.offsetWidth;
+    brand.classList.add('spin');
+    setTimeout(function () { brand.classList.remove('spin'); }, 850);
+  });
+
+  // Hero headline slides in line by line
+  var hero = document.querySelector('.hero');
+  setTimeout(function () {
+    hero.classList.add('in');
+    hero.querySelectorAll('.reveal').forEach(function (el) { el.classList.add('visible'); });
+  }, 60);
+
+  // Reveal on scroll
+  var items = document.querySelectorAll('.reveal');
+  if ('IntersectionObserver' in window && !reduce) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+    items.forEach(function (el) { io.observe(el); });
+  } else {
+    items.forEach(function (el) { el.classList.add('visible'); });
+  }
+
+  if (!reduce && finePointer) {
+    // 3D tilt on cards
+    document.querySelectorAll('[data-tilt]').forEach(function (el) {
+      var base = el.getAttribute('data-tilt') || '';
+      el.addEventListener('pointermove', function (e) {
+        var r = el.getBoundingClientRect();
+        var x = (e.clientX - r.left) / r.width - 0.5;
+        var y = (e.clientY - r.top) / r.height - 0.5;
+        el.style.transform = 'perspective(900px) ' + base + ' rotateX(' + (-y * 7).toFixed(2) + 'deg) rotateY(' + (x * 7).toFixed(2) + 'deg) translateY(-4px)';
+      });
+      el.addEventListener('pointerleave', function () { el.style.transform = ''; });
+    });
+
+    // Magnetic buttons
+    document.querySelectorAll('[data-magnet]').forEach(function (b) {
+      b.addEventListener('pointermove', function (e) {
+        var r = b.getBoundingClientRect();
+        var dx = (e.clientX - r.left - r.width / 2) * 0.3;
+        var dy = (e.clientY - r.top - r.height / 2) * 0.45;
+        b.style.transform = 'translate(' + dx.toFixed(1) + 'px, ' + dy.toFixed(1) + 'px)';
+      });
+      b.addEventListener('pointerleave', function () { b.style.transform = ''; });
+    });
+  }
+
+  // Oscilloscope + terminal canvas behind the hero
+  var canvas = document.getElementById('scope');
+  var ctx = canvas.getContext && canvas.getContext('2d');
+  if (!ctx) return;
+  var W = 0, H = 0, t = 0, frame = 0, raf = null, running = false, lines = [], col = {};
+  var term = [
+    '> python forecast.py --horizon 4w',
+    '  walk-forward fold 7 of 12 ...',
+    '  beat "same as last week" (finally)',
+    '> shap.summary_plot(values)',
+    '  top driver: not the one you expected',
+    '> SELECT lane, teu FROM bookings',
+    "  WHERE week >= '2020-W01';",
+    '> databricks serving deploy',
+    '  cold start gone, load time -90%',
+    '> git commit -m "final_v2_REALLY_final"',
+    '  please work. please.',
+    '> sudo make me a forecast',
+    '  permission denied (nice try)',
+    '> claude.messages.create(...)',
+    '  cache hit, briefing ready',
+    '> pytest -q',
+    '  41 passed, 1 flaky (it knows what it did)'
+  ];
+
+  function readColors() {
+    var cs = getComputedStyle(root);
+    col.ink = cs.getPropertyValue('--ink-rgb').trim();
+    col.acc = cs.getPropertyValue('--accent-rgb').trim();
+    col.paper = cs.getPropertyValue('--paper-rgb').trim();
+    col.font = '12px ' + cs.getPropertyValue('--mono').trim();
+  }
+  function size() {
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    W = canvas.clientWidth; H = canvas.clientHeight;
+    canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.fillStyle = 'rgb(' + col.paper + ')';
+    ctx.fillRect(0, 0, W, H);
+  }
+  function grid() {
+    var cols = 12, rows = 8, cw = W / cols, ch = H / rows, i, j;
+    ctx.lineWidth = 0.5;
+    for (i = 1; i < cols; i++) {
+      ctx.beginPath(); ctx.moveTo(i * cw, 0); ctx.lineTo(i * cw, H);
+      ctx.strokeStyle = 'rgba(' + col.ink + ',' + (i % 3 === 0 ? 0.06 : 0.025) + ')'; ctx.stroke();
+    }
+    for (j = 1; j < rows; j++) {
+      ctx.beginPath(); ctx.moveTo(0, j * ch); ctx.lineTo(W, j * ch);
+      ctx.strokeStyle = 'rgba(' + col.ink + ',' + (j % 2 === 0 ? 0.06 : 0.025) + ')'; ctx.stroke();
+    }
+    ctx.strokeStyle = 'rgba(' + col.ink + ',0.1)'; ctx.lineWidth = 0.8;
+    for (i = 0; i <= cols; i++) { ctx.beginPath(); ctx.moveTo(i * cw, H / 2 - 4); ctx.lineTo(i * cw, H / 2 + 4); ctx.stroke(); }
+    for (j = 0; j <= rows; j++) { ctx.beginPath(); ctx.moveTo(W / 2 - 4, j * ch); ctx.lineTo(W / 2 + 4, j * ch); ctx.stroke(); }
+  }
+  function wave(yBase, amp, freq, phase, rgb, alpha, lw, kind) {
+    ctx.beginPath(); ctx.lineWidth = lw;
+    for (var x = 0; x <= W; x += 2) {
+      var r = x / W, y;
+      if (kind === 'square') {
+        y = yBase + (Math.sin(r * Math.PI * 2 * freq + phase) > 0 ? 1 : -1) * amp * 0.75;
+      } else if (kind === 'noise') {
+        y = yBase + Math.sin(r * Math.PI * 2 * freq + phase) * amp * 0.5
+          + Math.sin(r * Math.PI * 2 * freq * 3.7 + phase * 2.1) * amp * 0.3
+          + Math.sin(r * Math.PI * 2 * freq * 7.3 + phase * 0.7) * amp * 0.15;
+      } else {
+        y = yBase + Math.sin(r * Math.PI * 2 * freq + phase) * amp
+          + Math.sin(r * Math.PI * 2 * freq * 2.3 + phase * 1.3) * amp * 0.18;
+      }
+      if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.strokeStyle = 'rgba(' + rgb + ',' + alpha + ')';
+    ctx.stroke();
+  }
+  function spawn() {
+    if (lines.length >= 6) return;
+    var narrow = W < 760;
+    var text = term[Math.floor(Math.random() * term.length)];
+    ctx.font = col.font;
+    var tw = ctx.measureText(text).width;
+    var x = narrow ? 16 + Math.random() * Math.max(0, W - tw - 32) : W * (0.52 + Math.random() * 0.26);
+    x = Math.max(12, Math.min(x, W - tw - 16));
+    lines.push({
+      text: text,
+      warm: Math.random() > 0.5,
+      x: x,
+      y: narrow ? H * (0.06 + Math.random() * 0.3) : H * (0.08 + Math.random() * 0.55),
+      life: 0, max: 170 + Math.random() * 110
+    });
+  }
+  function drawTerm() {
+    ctx.font = col.font;
+    lines = lines.filter(function (l) { return l.life < l.max; });
+    lines.forEach(function (l) {
+      l.life++;
+      var a = l.life < 20 ? l.life / 20 : (l.life > l.max - 20 ? (l.max - l.life) / 20 : 1);
+      ctx.fillStyle = 'rgba(' + (l.warm ? col.acc : col.ink) + ',' + (a * 0.32).toFixed(3) + ')';
+      ctx.fillText(l.text, l.x, l.y);
+    });
+  }
+  function draw() {
+    ctx.fillStyle = 'rgba(' + col.paper + ',0.2)';
+    ctx.fillRect(0, 0, W, H);
+    t += 0.012;
+    grid();
+    wave(H * 0.36, H * 0.06, 2.5, t * 0.7, col.ink, 0.07, 1, 'square');
+    wave(H * 0.72, H * 0.045, 4, t * 1.1, col.acc, 0.13, 1, 'noise');
+    wave(H * 0.55, H * 0.12, 2, t, col.acc, 0.42, 1.6, 'sine');
+    wave(H * 0.45, H * 0.07, 3, t * 1.4 + 1, col.ink, 0.16, 1.2, 'sine');
+    frame++;
+    if (frame % 55 === 0) spawn();
+    drawTerm();
+    if (running) raf = requestAnimationFrame(draw);
+  }
+  function start() { if (running || reduce) return; running = true; raf = requestAnimationFrame(draw); }
+  function stop() { running = false; if (raf) cancelAnimationFrame(raf); raf = null; }
+
+  readColors(); size();
+  if (reduce) {
+    for (var k = 0; k < 40; k++) draw();
+  } else {
+    setTimeout(spawn, 300); setTimeout(spawn, 900); setTimeout(spawn, 1500);
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(function (es) {
+        es.forEach(function (e) { if (e.isIntersecting && !document.hidden) start(); else stop(); });
+      }).observe(hero);
+    } else { start(); }
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) stop(); else if (hero.getBoundingClientRect().bottom > 0) start();
+    });
+  }
+  var rt;
+  window.addEventListener('resize', function () { clearTimeout(rt); rt = setTimeout(size, 150); });
+  var dark = window.matchMedia('(prefers-color-scheme: dark)');
+  var onScheme = function () { readColors(); size(); };
+  if (dark.addEventListener) dark.addEventListener('change', onScheme); else if (dark.addListener) dark.addListener(onScheme);
+})();
+</script>
 </body>
 </html>
